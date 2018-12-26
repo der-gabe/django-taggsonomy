@@ -54,6 +54,9 @@ Colon as separator, could only be a convention, but could also trigger some addi
 Note that in these examples alphabetic sorting of (presumably mutually exclusive) tags would do the trick.
 **** "actor: John Doe", "director: Jane Doe"
 Note that this example could not be accomplished by combining the tags "actor", "director", "John Doe" and "Jane Doe", since it's not clear which job title refers to which person.
+**** "preceded by: <object>", "followed by: <other object>", "greater than: <object: foo>"…
+These are basically object relations. Could be one-to-one, one-to-many or many-to-many.
+Now we're really getting into object DB territory, I wonder whether this is still a good idea…
 ** Opportunistic auto-tagging
 … could be implemented in filters, scanners, fetchers etc.
 ** Multilingual tags :i18n:
