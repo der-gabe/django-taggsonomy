@@ -1,0 +1,96 @@
+Taggsonomy - tagging it seriously
+* Nomenclature
+** Tags vs. labels :private_v_global_tags:
+… maybe for the distinction between global and private tags?
+* Advanced features
+** Private vs. global tags
+There should be a difference in graphical representation, i.e. a small globe icon at the left of the tag name for global tags and a little lock or person icon for private tags.
+*** Global tags
+globally unique (per system)
+*** Private tags
+only unique per user, duplicates (by name) can exist, but are of course completely separate objects
+*** Group tags? :private_v_global_tags:
+** Tag relations
+*** Mutually exclusive tags :MVP:
+:PROPERTIES:
+:Milestone: 0
+:END:
+"A excludes B"
+- Note that "A excludes B" implicitely also means "B excludes A", but the code should make this explicit.
+- In this situation, adding tag "B" to an object that already has tag "A" will silently remove tag "A".
+*** "Implications" :MVP:
+:PROPERTIES:
+:Milestone: 0
+:END:
+- Either "A implies B" (objects tagged B then form a superset of those tagged A), or - arguably more useful - "A implies (B or C [or …])".
+- Especially useful in conjunction with mutually exclusive tags (then becomes "either B or C [or …]"), but not only (then becomes "B and/or C [and/or …]").
+**** Implication of tag groups should be allowed :tag_groups:
+:PROPERTIES:
+:Milestone: 1
+:END:
+*** Ordering :MVP:
+:PROPERTIES:
+:Milestone: 0
+:END:
+- "A > B"
+- Only meaningful for mutually exclusive tags.
+- Allows sorting by related tags
+- Difficult to maintain consistent ordering without tag groups, since each tag could only give its own ordering relation to other tags. Overall, ambiguous or nonsensical orderings (e.g. loops) may emerge.
+*** Tag transition rules
+"If tagged with A, cannot tag with B"
+- only meaningful with mutually exclusive tags.
+- Similar consistency considerations as for tag ordering apply
+** Tag-based visibility / access control?
+E.g. only objects with global/admin level tag "X", "user:X" or "group:x" are visible to user(s in group) "X"
+** Tags for structured meta-data? :structured_metadata_tags:
+… like dates, coordinates, annotations, people etc.
+Basically, generic object (key/value) store.
+[[https://orgmode.org/manual/Properties-and-columns.html#Properties-and-columns][Org-mode calls these "properties".]]
+*** Format
+Colon as separator, could only be a convention, but could also trigger some additional processing in the background, e.g. validation, ordering etc.
+*** Examples
+**** "birth date: 1970-01-01" or "version: 1.0.1" :alphabetic_sorting:
+… with additional validation applied to the "second field" (value) and optionally even sorting.
+Note that in these examples alphabetic sorting of (presumably mutually exclusive) tags would do the trick.
+**** "actor: John Doe", "director: Jane Doe"
+Note that this example could not be accomplished by combining the tags "actor", "director", "John Doe" and "Jane Doe", since it's not clear which job title refers to which person.
+** Opportunistic auto-tagging
+… could be implemented in filters, scanners, fetchers etc.
+** Multilingual tags :i18n:
+** Filtering
+*** ANDing & ORing
+*** Tag selection by wildcards/regular expressions :structured_metadata_tags:
+… probably mostly or only important for structured meta-data tags.
+*** Tag selection by ranges :structured_metadata_tags:
+… definitely only important for structured meta-data tags.
+- Syntax?
+** Sorting
+*** Alphabetically by default :alphabetic_sorting:
+**** considering the correct collation for the locale :i18n:
+*** by ordering for mutually exclusive tags
+… how can a user specify that?
+*** by some ordering algorithm for structured meta-data tags :structured_metadata_tags:
+**** although alphabetic sorting will often work in these cases :alphabetic_sorting:
+** Hookability
+It should be possible to "hook" tag transitions, e.g. by registering callback functions or similar, so that a tag tansition may lead to system-specific actions.
+** Logging
+… built in facilities and/or simple way to export tag operation log data?
+* Tag groups :tag_groups:
+:PROPERTIES:
+:Milestone: 1
+:END:
+Allow mutually exclusive tags with consistent ordering and consistent transition rules.
+- Basically implement all of the individual tag features in a convenient package.
+- Maybe make implementation transparent:
+  - New tag without any relations forms its own tag group "behind the scenes", when relations are added the group becomes explicit.
+* Implementation
+How to separate Django app and (possible) Python library?
+** Auto-Fill Suggestions
+… are indispensable for maintaining a controlled vocabulary.
+They must take private/group/global tags into account.
+** Names
+Tag names should support whitespace (well, at least single spaces), and be separated by commas, although the UI should turn that into visually separate entities.
+** Decorator
+Implement decorator for taggable objects…
+    `@taggsonomy.taggable`
+… instead of "forcing" models to include a "tags" field?
