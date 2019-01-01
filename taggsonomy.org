@@ -54,11 +54,16 @@ Colon as separator, could only be a convention, but could also trigger some addi
 Note that in these examples alphabetic sorting of (presumably mutually exclusive) tags would do the trick.
 **** "actor: John Doe", "director: Jane Doe"
 Note that this example could not be accomplished by combining the tags "actor", "director", "John Doe" and "Jane Doe", since it's not clear which job title refers to which person.
+**** "episode: 05", "season: 02"
 **** "preceded by: <object>", "followed by: <other object>", "greater than: <object: foo>"…
 These are basically object relations. Could be one-to-one, one-to-many or many-to-many.
+Backwards relations need to be defined so they can be implemented automatically.
 Now we're really getting into object DB territory, I wonder whether this is still a good idea…
-** Opportunistic auto-tagging
-… could be implemented in filters, scanners, fetchers etc.
+***** TODO research RDF and related technologies (Wikidata?) again
+** Auto-tagging
+… could be implemented opportunistically in filters, scanners, fetchers etc.
+*** could also be done based on other tag transitions
+e.g. when the final episode in a season of a TV show is added, all the episodes in that season get the additional tag "complete season".
 ** Multilingual tags :i18n:
 ** Filtering
 *** ANDing & ORing
@@ -74,6 +79,10 @@ Now we're really getting into object DB territory, I wonder whether this is stil
 … how can a user specify that?
 *** by some ordering algorithm for structured meta-data tags :structured_metadata_tags:
 **** although alphabetic sorting will often work in these cases :alphabetic_sorting:
+** Aggregation :structured_metadata_tags:
+E.g. The question "How many seasons of The Big Bang Theory are there (in the system)?" translates to "How many tags of class/form "season: …" are there, which are used together with the tag "the big bang theory"?
+The question "Is Season X of The Big Bang Theory complete?" is more complicated, but it's solvable in several ways. Either by filtering by show title and season number and comparing the number of results with the highest episode number, or by having tags for "first episode in season", "following episode: <object>", (optionally "preceding episode: <other object>") and "last episode in season" and by checking whether the chain of following episodes is unbroken.
+
 ** Hookability
 It should be possible to "hook" tag transitions, e.g. by registering callback functions or similar, so that a tag tansition may lead to system-specific actions.
 ** Logging
