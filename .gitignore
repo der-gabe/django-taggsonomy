@@ -1,0 +1,6 @@
+# Ignore database stuff
+db.sqlite3
+__pycache__
+
+# Ignore upload directory
+media/
