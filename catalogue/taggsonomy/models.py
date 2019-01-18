@@ -76,3 +76,15 @@ class TagSet(models.Model):
         tags = self._get_tags_from_args(*args, must_exist=only_existing)
         self._tags.add(*tags)
         # TODO: What should this method return?
+
+    def all(self, *args, **kwargs):
+        return self._tags.all(*args, **kwargs)
+
+    def count(self, *args, **kwargs):
+        return self._tags.count(*args, **kwargs)
+
+    def exists(self, *args, **kwargs):
+        return self._tags.exists(*args, **kwargs)
+
+    def filter(self, *args, **kwargs):
+        return self._tags.filter(*args, **kwargs)
