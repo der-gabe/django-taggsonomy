@@ -16,13 +16,6 @@ class TagSet(models.Model):
     """
     _tags = models.ManyToManyField(Tag, related_name='tagsets')
 
-    def __call__(self):
-        """
-        Return tags contained in this tag set
-        """
-        # Should we return a list of tag objects or a QuerySet?
-        return self._tags
-
     def _get_tag_from_name(self, name, must_exist=False):
         """
         
