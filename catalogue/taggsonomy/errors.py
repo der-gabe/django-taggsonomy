@@ -1,0 +1,2 @@
+class NoSuchTagError(Exception):
+    pass
