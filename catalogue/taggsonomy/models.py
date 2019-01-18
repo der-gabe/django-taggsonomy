@@ -16,6 +16,9 @@ class TagSet(models.Model):
     """
     _tags = models.ManyToManyField(Tag, related_name='tagsets')
 
+    def __contains__(self, tag):
+        return self._tags.filter(id=tag.id).exists()
+
     def _get_tag_from_name(self, name, must_exist=False):
         """
         
