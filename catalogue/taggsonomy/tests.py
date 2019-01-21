@@ -312,3 +312,21 @@ class TagSetRemoveTests(TestCase):
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_same_tag_thrice_simultaneously(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag0, self.tag0.id, self.tag0.name)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertNotIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_same_tag_thrice_simultaneously(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag0)
+        self.tagset.remove(self.tag0.id)
+        self.tagset.remove(self.tag0.name)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertNotIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
