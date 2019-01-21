@@ -1,4 +1,16 @@
 * TagSet
 ** add
-*** TODO Rename `only_existing` to `create_nonexisting`
-*** TODO New kwarg `ignore_errors`
+*** TODO New kwarg `ignore_missing`?
+Do not throw NoSuchTagError.
+Silently ignore nonexisting tag IDs and - if `create_nonexisting=False` - also nonexisting tag names.
+
+Is this a good idea?
+It seems like it introduces some unnecessarily complex interaction between keyword args.
+*** TODO New kwarg ``
+Throw …Error if any of the requested tags is already in the tag set.
+** remove
+*** TODO New kwarg `ignore_missing`?
+Do not throw NoSuchTagError.
+Silently ignore nonexisting tag IDs and names.
+*** TODO New kwarg ``
+Throw …Error if any of the requested tags is *not* in the tag set.
