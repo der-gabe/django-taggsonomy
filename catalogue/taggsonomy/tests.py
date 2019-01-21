@@ -15,6 +15,10 @@ class TagSetAddBasicTests(TestCase):
         self.tag2 = Tag.objects.create(name='baz')
         self.tagset = TagSet.objects.create()
 
+    def test_add_nothing(self):
+        self.tagset.add()
+        self.assertFalse(self.tagset.exists())
+
     def test_add_single_tag_instance(self):
         self.tagset.add(self.tag0)
         self.assertTrue(self.tagset.exists())
@@ -193,6 +197,13 @@ class TagSetRemoveTests(TestCase):
         self.tag2 = Tag.objects.create(name='baz')
         self.tagset = TagSet.objects.create()
         self.tagset._tags.add(self.tag0, self.tag1, self.tag2)
+
+    def test_remove_nothing(self):
+        self.tagset.remove()
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
 
     def test_remove_single_tag_instance(self):
         self.assertEquals(self.tagset.count(), 3)
