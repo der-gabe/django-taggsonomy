@@ -19,11 +19,11 @@ class TagSet(models.Model):
     def __contains__(self, tag):
         return self._tags.filter(id=tag.id).exists()
 
-    def _get_tag_from_name(self, name, must_exist=False):
+    def _get_tag_from_name(self, name, create_nonexisting=False):
         """
         
         """
-        if must_exist:
+        if create_nonexisting:
             # A tag of that name should already exist.
             try:
                 tag = Tag.objects.get(name=name)
@@ -34,7 +34,7 @@ class TagSet(models.Model):
             tag, _ = Tag.objects.get_or_create(name=name)
         return tag
 
-    def _get_tags_from_args(self, *args, must_exist=False):
+    def _get_tags_from_args(self, *args, create_nonexisting=False):
         """
         Return a set of Tag objects from positional arguments, which may be:
         - tag instances (Tag objects),
@@ -51,7 +51,7 @@ class TagSet(models.Model):
                 tags.add(arg)
             elif isinstance(arg, str):
                 # It's a string, i.e. it should be a tag name...
-                tags.add(self._get_tag_from_name(arg, must_exist=must_exist))
+                tags.add(self._get_tag_from_name(arg, create_nonexisting=create_nonexisting))
             elif isinstance(arg, int):
                 # It's an integer, i.e. it should be the tag's ID.
                 try:
@@ -64,12 +64,12 @@ class TagSet(models.Model):
         return tags                    
             
 
-    def add(self, *args, only_existing=False):
+    def add(self, *args, create_nonexisting=False):
         """
         Add the given tag(s) to this tag set
         """
         # First, get tags from positional args, validating them individually
-        tags = self._get_tags_from_args(*args, must_exist=only_existing)
+        tags = self._get_tags_from_args(*args, create_nonexisting=create_nonexisting)
         self._tags.add(*tags)
         # TODO: What should this method return?
 
@@ -90,5 +90,5 @@ class TagSet(models.Model):
         Remove the given tag(s) from this tag set
         """
         # First, get tags from positional args, validating them individually
-        tags = self._get_tags_from_args(*args, must_exist=True)
+        tags = self._get_tags_from_args(*args, create_nonexisting=True)
         self._tags.remove(*tags)
