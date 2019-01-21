@@ -180,3 +180,124 @@ class TagSetAddBasicTests(TestCase):
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
+
+
+class TagSetRemoveTests(TestCase):
+    """
+    Tests for basic functionality provided by TagSet's `remove` method
+    """
+
+    def setUp(self):
+        self.tag0 = Tag.objects.create(name='foo')
+        self.tag1 = Tag.objects.create(name='bar')
+        self.tag2 = Tag.objects.create(name='baz')
+        self.tagset = TagSet.objects.create()
+        self.tagset._tags.add(self.tag0, self.tag1, self.tag2)
+
+    def test_remove_single_tag_instance(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag0)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertNotIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_single_tag_by_ID(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag1.id)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertNotIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_single_nonexisting_tag_by_ID_ERROR(self):
+        self.assertEquals(self.tagset.count(), 3)
+        with self.assertRaises(NoSuchTagError):
+            self.tagset.remove(self.tag0.id + self.tag1.id + self.tag2.id)
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_single_tag_by_name(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag2.name)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertNotIn(self.tag2, self.tagset)
+
+    def test_remove_single_nonexisting_tag_by_name_ERROR(self):
+        self.assertEquals(self.tagset.count(), 3)
+        with self.assertRaises(NoSuchTagError):
+            self.tagset.remove('foooo')
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_several_tag_instances(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag0, self.tag1)
+        self.assertEquals(self.tagset.count(), 1)
+        self.assertNotIn(self.tag0, self.tagset)
+        self.assertNotIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_several_tags_by_ID(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag1.id, self.tag2.id)
+        self.assertEquals(self.tagset.count(), 1)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertNotIn(self.tag1, self.tagset)
+        self.assertNotIn(self.tag2, self.tagset)
+
+    def test_remove_several_tags_incl_nonexisting_by_ID_ERROR(self):
+        self.assertEquals(self.tagset.count(), 3)
+        with self.assertRaises(NoSuchTagError):
+            self.tagset.remove(self.tag1.id, self.tag2.id,
+                               self.tag1.id + self.tag2.id)
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_several_tags_by_name(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag0.name, self.tag2.name)
+        self.assertEquals(self.tagset.count(), 1)
+        self.assertNotIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertNotIn(self.tag2, self.tagset)
+
+    def test_remove_several_tags_incl_nonexisting_by_name_ERROR(self):
+        self.assertEquals(self.tagset.count(), 3)
+        with self.assertRaises(NoSuchTagError):
+            self.tagset.remove(self.tag0.name, self.tag2.name, 'foooo')
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_several_tags(self):
+        self.assertEquals(self.tagset.count(), 3)
+        self.tagset.remove(self.tag0, self.tag1.id, self.tag2.name)
+        self.assertFalse(self.tagset.exists())
+
+    def test_remove_several_tags_incl_nonexisting_ID_ERROR(self):
+        self.assertEquals(self.tagset.count(), 3)
+        with self.assertRaises(NoSuchTagError):
+            self.tagset.remove(self.tag0, self.tag1.id, self.tag2.name, 5)
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)
+
+    def test_remove_several_tags_incl_nonexisting_name_ERROR(self):
+        self.assertEquals(self.tagset.count(), 3)
+        with self.assertRaises(NoSuchTagError):
+            self.tagset.remove(self.tag0, self.tag1.id, self.tag2.name, 'fooo')
+        self.assertEquals(self.tagset.count(), 3)
+        self.assertIn(self.tag0, self.tagset)
+        self.assertIn(self.tag1, self.tagset)
+        self.assertIn(self.tag2, self.tagset)

@@ -4,7 +4,7 @@ from .errors import NoSuchTagError
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, unique=True)
 
     def __str__(self):
         return self.name
@@ -64,7 +64,7 @@ class TagSet(models.Model):
         return tags                    
             
 
-    def add(self, *args, auto_remove=True, only_existing=False):
+    def add(self, *args, only_existing=False):
         """
         Add the given tag(s) to this tag set
         """
@@ -84,3 +84,11 @@ class TagSet(models.Model):
 
     def filter(self, *args, **kwargs):
         return self._tags.filter(*args, **kwargs)
+
+    def remove(self, *args):
+        """
+        Remove the given tag(s) from this tag set
+        """
+        # First, get tags from positional args, validating them individually
+        tags = self._get_tags_from_args(*args, must_exist=True)
+        self._tags.remove(*tags)

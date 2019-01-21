@@ -1,0 +1,4 @@
+* TagSet
+** add
+*** TODO Rename `only_existing` to `create_nonexisting`
+*** TODO New kwarg `ignore_errors`
