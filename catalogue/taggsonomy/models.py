@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from .errors import NoSuchTagError
@@ -15,6 +17,10 @@ class TagSet(models.Model):
     Collection of tags associated with an object
     """
     _tags = models.ManyToManyField(Tag, related_name='tagsets')
+    # Generic relation stuff
+    content_type = models.OneToOneField(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey()
 
     def __contains__(self, tag):
         return self._tags.filter(id=tag.id).exists()
