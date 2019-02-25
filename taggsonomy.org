@@ -36,7 +36,7 @@ only unique per user, duplicates (by name) can exist, but are of course complete
 - Only meaningful for mutually exclusive tags.
 - Allows sorting by related tags
 - Difficult to maintain consistent ordering without tag groups, since each tag could only give its own ordering relation to other tags. Overall, ambiguous or nonsensical orderings (e.g. loops) may emerge.
-*** Tag transition rules
+*** Tag transition rules :transition_rules:
 "If tagged with A, cannot tag with B"
 - only meaningful with mutually exclusive tags.
 - Similar consistency considerations as for tag ordering apply
@@ -65,6 +65,25 @@ Now we're really getting into object DB territory, I wonder whether this is stil
 *** could also be done based on other tag transitions
 e.g. when the final episode in a season of a TV show is added, all the episodes in that season get the additional tag "complete season".
 ** Multilingual tags :i18n:
+** Hookability
+It should be possible to "hook" tag transitions, e.g. by registering callback functions or similar, so that a tag tansition may lead to system-specific actions.
+** Logging
+… built in facilities and/or simple way to export tag operation log data?
+** Expiration
+*** on `Tag` object?
+essentially 'self-destruct'
+*** on taggable object?
+essentially 'remove_after…'
+could be implemented as extra attribute on the ManyToMany relation
+** Timestamps
+*** Tag addition to or removal from object
+could be implemented as extra attribute on the ManyToMany relation
+* Navigation
+** UI elements
+*** Tag cloud
+*** TagTree
+*** Tag Drawer
+List of tags that can be pulled open from the side and contains a simple list of tags to allow dragging and dropping tags on objects.
 ** Filtering
 *** ANDing & ORing
 *** Tag selection by wildcards/regular expressions :structured_metadata_tags:
@@ -83,10 +102,6 @@ e.g. when the final episode in a season of a TV show is added, all the episodes 
 E.g. The question "How many seasons of The Big Bang Theory are there (in the system)?" translates to "How many tags of class/form "season: …" are there, which are used together with the tag "the big bang theory"?
 The question "Is Season X of The Big Bang Theory complete?" is more complicated, but it's solvable in several ways. Either by filtering by show title and season number and comparing the number of results with the highest episode number, or by having tags for "first episode in season", "following episode: <object>", (optionally "preceding episode: <other object>") and "last episode in season" and by checking whether the chain of following episodes is unbroken.
 
-** Hookability
-It should be possible to "hook" tag transitions, e.g. by registering callback functions or similar, so that a tag tansition may lead to system-specific actions.
-** Logging
-… built in facilities and/or simple way to export tag operation log data?
 * Tag groups :tag_groups:
 :PROPERTIES:
 :Milestone: 1
@@ -95,14 +110,67 @@ Allow mutually exclusive tags with consistent ordering and consistent transition
 - Basically implement all of the individual tag features in a convenient package.
 - Maybe make implementation transparent:
   - New tag without any relations forms its own tag group "behind the scenes", when relations are added the group becomes explicit.
-* Implementation
-How to separate Django app and (possible) Python library?
-** Auto-Fill Suggestions
+* Implementations
+** Django app
+*** How to separate Django app and (possible) Python library? :python_taggsonomy:
+*** Auto-Fill Suggestions
 … are indispensable for maintaining a controlled vocabulary.
 They must take private/group/global tags into account.
-** Names
+
+Use <datalist> in default templatetag and replace with something fancier with JS.
+*** Names
 Tag names should support whitespace (well, at least single spaces), and be separated by commas, although the UI should turn that into visually separate entities.
-** Decorator
+
+To have nicely formatted tags in the input field as well as the auto-complete suggestion list will require JS.
+*** Decorator
 Implement decorator for taggable objects…
     `@taggsonomy.taggable`
 … instead of "forcing" models to include a "tags" field?
+*** TagSet as Descriptor
+This *might* allow some syntatctic sugar like
+    file.tags = ['foo', 'bar']
+where file is an instance of a taggabel model class, like:
+    class File(models.Model):
+        tags = OneToOne(TagSet, …)
+`TagSet.__set__` could then make this essentially equivalent to:
+    file.tags.add(['foo', 'bar'])
+
+It's unclear whether that would work, though, as the relation is mediated by Django's `OneToOne` ModelField (which is probably a descriptor, itself).
+
+If it *is* possible, this humble example can also be achieve with `property` (which itself returns descriptor objects).
+
+Additionally, however, since the Descriptor protocol methods (`__get__`, `__set__` and `__delete__`) get the containing "parent" type or object passed into them, this could be used to implement some rather cool extra functionality, like the ability to look for and - if found - call specially named methods on that object.
+
+So a taggable model could add custom behaviour by implementing such methods. That way, tagging could lead to actual object state changes.
+
+This is not possible with `property` alone.
+*** HTML(5)
+**** UI elements (tag cloud, TagTree, TagDrawer etc.)
+- should come as templatetags
+- should render into <aside> elements?
+**** Custom elements?
+<tags>, <tag [user="…"] [group="…"]> etc.
+*** Tag transition rules :transition_rules:
+Tag exclusion is ManyToMany, so maybe add a `through=…` table, which would allow a Boolean attribute like `allow_replacment` or similar.
+What about directionality?
+*** TagTree-like URIs?
+  E.g.:
+"…/tags/foo/bar/baz/",
+  … which would be equivalent to:
+"…/tags/foo/baz/bar/",
+
+
+** Python library(?) :python_taggsonomy:
+Pure Python, no Django ORM, therefore no assumption about persistence possible and object relations need to be handled Pythonically.
+
+Is this even a good idea?
+** Bookmarks (Browser extension) :bookmark_taggsonomy:
+Written in JavaScript, HTML & CSS
+Should target Firefox, Chromium & WebKit
+** E-Mail
+*** Thunderbird
+*** IMAP
+** Desktop application for overview?
+with connectors to other local/remote implementations
+** Online-Service for sync?
+Would have to be zero knowledge!
