@@ -13,7 +13,7 @@ def add_tags(request, tagset_id):
     except NoReverseMatch:
         return redirect('/')
 
-def remove_tag_from(request, tag_id, tagset_id):
+def remove_tag(request, tagset_id, tag_id):
     TagSet.objects.get(id=tagset_id).remove(tag_id)
     try:
         return redirect(request.META.get('HTTP_REFERER'))

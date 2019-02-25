@@ -3,7 +3,7 @@
   <span class="taggsonomy-tag">
     {{ tag }}
     <a class="taggsonomy-x"
-       href="{% url 'taggsonomy:remove-tag' tag.id tagset.id %}">
+       href="{% url 'taggsonomy:remove-tag' tagset.id tag.id %}">
       &#x2717
     </a>
   </span>
