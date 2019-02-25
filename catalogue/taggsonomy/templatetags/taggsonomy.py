@@ -16,3 +16,8 @@ register = template.Library()
 def tags(tagged_object):
     tagset = get_tagset_for_object(tagged_object)
     return {'tags' :  tagset.all()}
+
+@register.inclusion_tag('taggsonomy/active_tags.html')
+def active_tags(tagged_object):
+    tagset = get_tagset_for_object(tagged_object)
+    return {'tagset' :  tagset}
