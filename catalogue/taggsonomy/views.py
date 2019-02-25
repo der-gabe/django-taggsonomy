@@ -4,6 +4,15 @@ from django.shortcuts import redirect
 from .models import Tag, TagSet
 
 
+def add_tags(request, tagset_id):
+    name_string = request.POST.get('tag_names')
+    names = [ name.strip() for name in name_string.split(',')]
+    TagSet.objects.get(id=tagset_id).add(*names)
+    try:
+        return redirect(request.META.get('HTTP_REFERER'))
+    except NoReverseMatch:
+        return redirect('/')
+
 def remove_tag_from(request, tag_id, tagset_id):
     TagSet.objects.get(id=tagset_id).remove(tag_id)
     try:

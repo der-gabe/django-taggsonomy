@@ -1,7 +1,7 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
-from taggsonomy.models import TagSet
+from taggsonomy.models import Tag, TagSet
 
 
 def get_tagset_for_object(object_):
@@ -21,3 +21,10 @@ def tags(tagged_object):
 def active_tags(tagged_object):
     tagset = get_tagset_for_object(tagged_object)
     return {'tagset' :  tagset}
+
+@register.inclusion_tag('taggsonomy/add_tags.html')
+def add_tags_form(tagged_object):
+    tagset = get_tagset_for_object(tagged_object)
+    contained_ids = [ tag.id for tag in tagset.all() ]
+    tags = Tag.objects.exclude(id__in=contained_ids)
+    return {'tags': tags, 'tagset' :  tagset}
