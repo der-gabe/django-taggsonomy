@@ -28,6 +28,9 @@ class TagSet(models.Model):
     def __contains__(self, tag):
         return self._tags.filter(id=tag.id).exists()
 
+    def __str__(self):
+        return 'TagSet for {}'.format(self.content_object)
+
     def _get_tag_from_name(self, name, create_nonexisting=False):
         """
         
