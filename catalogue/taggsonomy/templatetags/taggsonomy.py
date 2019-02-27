@@ -1,14 +1,8 @@
 from django import template
-from django.contrib.contenttypes.models import ContentType
 
-from taggsonomy.models import Tag, TagSet
+from taggsonomy.models import Tag
+from taggsonomy.utils import get_tagset_for_object
 
-
-def get_tagset_for_object(object_):
-    content_type = ContentType.objects.get_for_model(object_)
-    tagset, _ = TagSet.objects.get_or_create(content_type=content_type,
-                                             object_id=object_.id)
-    return tagset
 
 register = template.Library()
 
