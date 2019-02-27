@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 
-from taggsonomy.models import Tag, TagSet
+from .models import TagSet
 
 
 def get_tagset_for_object(object_):
