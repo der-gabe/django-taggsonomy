@@ -13,6 +13,3 @@ urlpatterns = [
     path('tags/<int:tagset_id>/add', add_tags, name='add-tags'),
     path('tags/<int:tagset_id>/remove/<int:tag_id>', remove_tag, name='remove-tag'),
 ]
-
-
-from . import signals  # TODO: remove
