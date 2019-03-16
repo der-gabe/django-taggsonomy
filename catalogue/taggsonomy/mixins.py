@@ -1,4 +1,4 @@
-from .utils import get_tagset_for_object
+from .utils import get_or_create_tagset_for_object
 
 class TaggableMixin(object):
     """
@@ -13,4 +13,4 @@ class TaggableMixin(object):
         This will *create* a Tagset for this object
         if one doesn't exist already.
         """
-        return get_tagset_for_object(self)
+        return get_or_create_tagset_for_object(self)
