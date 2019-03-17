@@ -7,7 +7,7 @@ from .utils import (get_tagset_for_object,
                     get_or_create_tagset_for_object)
 
 
-@receiver(pre_delete)
+@receiver(pre_delete, dispatch_uid='taggsonomy-pre_delete-handler')
 def delete_tagset(sender, **kwargs):
     instance = kwargs.get('instance')
     if instance:
