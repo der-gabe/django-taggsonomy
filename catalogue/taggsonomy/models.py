@@ -35,7 +35,8 @@ class TagSet(models.Model):
     def __str__(self):
         return 'TagSet for {}'.format(self.content_object)
 
-    def _get_tags_from_args(self, *args, create_nonexisting=False):
+    @staticmethod
+    def _get_tags_from_args(*args, create_nonexisting=False):
         """
         Return a set of Tag objects from positional arguments, which may be:
         - tag instances (Tag objects),
