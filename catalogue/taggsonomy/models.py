@@ -35,22 +35,6 @@ class TagSet(models.Model):
     def __str__(self):
         return 'TagSet for {}'.format(self.content_object)
 
-    @staticmethod
-    def _get_tag_from_name(name, create_nonexisting=False):
-        """
-        
-        """
-        if create_nonexisting:
-            # A tag of that name should already exist.
-            try:
-                tag = Tag.objects.get(name=name)
-            except Tag.DoesNotExist:
-                raise NoSuchTagError
-        else:
-            # The tag is not required to exist.
-            tag, _ = Tag.objects.get_or_create(name=name)
-        return tag
-
     def _get_tags_from_args(self, *args, create_nonexisting=False):
         """
         Return a set of Tag objects from positional arguments, which may be:
@@ -68,7 +52,10 @@ class TagSet(models.Model):
                 tags.add(arg)
             elif isinstance(arg, str):
                 # It's a string, i.e. it should be a tag name...
-                tags.add(self._get_tag_from_name(arg, create_nonexisting=create_nonexisting))
+                if create_nonexisting:
+                    tags.add(get_or_create_tag_by_name(arg))
+                else:
+                    tags.add(get_tag_by_name(arg))
             elif isinstance(arg, int):
                 # It's an integer, i.e. it should be the tag's ID.
                 try:
@@ -107,5 +94,26 @@ class TagSet(models.Model):
         Remove the given tag(s) from this tag set
         """
         # First, get tags from positional args, validating them individually
-        tags = self._get_tags_from_args(*args, create_nonexisting=True)
+        tags = self._get_tags_from_args(*args, create_nonexisting=False)
         self._tags.remove(*tags)
+
+
+def get_tag_by_name(name):
+    """
+    Return the Tag with the given name
+
+    raises NoSuchTagError, if no tag by that name exists
+    """
+    try:
+        return Tag.objects.get(name=name)
+    except Tag.DoesNotExist:
+        raise NoSuchTagError
+
+def get_or_create_tag_by_name(name):
+    """
+    Return a Tag with the given name
+
+    creates a Tag, if no tag by that name exists
+    """
+    tag, _ = Tag.objects.get_or_create(name=name)
+    return tag

@@ -38,7 +38,7 @@ class TagSetAddBasicTests(TestCase):
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_single_nonexisting_tag_by_name(self):
-        self.tagset.add('foooo')
+        self.tagset.add('foooo', create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 1)
         self.assertTrue(self.tagset.filter(name='foooo').exists())
@@ -46,7 +46,7 @@ class TagSetAddBasicTests(TestCase):
 
     def test_add_single_nonexisting_tag_by_name_ERROR(self):
         with self.assertRaises(NoSuchTagError):
-            self.tagset.add('foooo', create_nonexisting=True)
+            self.tagset.add('foooo', create_nonexisting=False)
         self.assertFalse(self.tagset.exists())
 
     def test_add_several_tag_instances(self):
@@ -74,7 +74,10 @@ class TagSetAddBasicTests(TestCase):
         self.assertIn(self.tag2, self.tagset)
 
     def test_add_several_nonexisting_tags_by_name(self):
-        self.tagset.add('foooo', 'baaar', 'baaaz')
+        """
+        Test attempt to add non-existing tags by name when `create_nonexisting=True`
+        """
+        self.tagset.add('foooo', 'baaar', 'baaaz', create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 3)
         self.assertEquals(self.tagset.filter(name='foooo').count(), 1)
@@ -83,21 +86,22 @@ class TagSetAddBasicTests(TestCase):
 
     def test_add_several_nonexisting_tags_by_name_ERROR(self):
         """
-        Test attempt to add non-existing tags by name when `create_nonexisting=True`
+        Test attempt to add non-existing tags by name when `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
         with self.assertRaises(NoSuchTagError):        
-            self.tagset.add('foooo', 'baaar', 'baaaz', create_nonexisting=True)
+            self.tagset.add('foooo', 'baaar', 'baaaz')
         self.assertFalse(self.tagset.exists())
 
     def test_add_several_tags_by_name(self):
         """
-        Test addition of existing and non-existing tags by name
+        Test addition of existing and non-existing tags by name when
+        `create_nonexisting=True`
         """
         self.tagset.add(
             self.tag0.name, self.tag1.name, self.tag2.name,
-            'foooo', 'baaar', 'baaaz'
+            'foooo', 'baaar', 'baaaz', create_nonexisting=True
         )
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 6)
@@ -114,14 +118,14 @@ class TagSetAddBasicTests(TestCase):
     def test_add_several_tags_by_name_ERROR(self):
         """
         Test attempt to add existing and non-existing tags by name when
-        `create_nonexisting=True`
+        `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
         with self.assertRaises(NoSuchTagError):        
             self.tagset.add(
                 self.tag0.name, self.tag1.name, self.tag2.name,
-                'foooo', 'baaar', 'baaaz', create_nonexisting=True
+                'foooo', 'baaar', 'baaaz'
             )
         self.assertFalse(self.tagset.exists())
 
@@ -131,9 +135,10 @@ class TagSetAddBasicTests(TestCase):
         - Tag (instance),
         - int (ID) and
         - str (name),
-        including a non-existing tag by name (str)
+        including a non-existing tag by name (str) with `create_nonexisting=True`
         """
-        self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo')
+        self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo',
+                        create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 4)
         self.assertIn(self.tag0, self.tagset)
@@ -148,13 +153,12 @@ class TagSetAddBasicTests(TestCase):
         - Tag (instance),
         - int (ID) and
         - str (name),
-        including a non-existing tag by name (str) with `create_nonexisting=True`
+        including a non-existing tag by name (str) with `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
         with self.assertRaises(NoSuchTagError):        
-            self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo',
-                            create_nonexisting=True)
+            self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo')
         self.assertFalse(self.tagset.exists())
 
     def test_add_same_tag_twice_simultaneously_by_instance(self):
