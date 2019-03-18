@@ -6,6 +6,7 @@ from .errors import NoSuchTagError
 
 
 class Tag(models.Model):
+    _exclusions = models.ManyToManyField('self')
     name = models.CharField(max_length=256, unique=True)
 
     def __str__(self):

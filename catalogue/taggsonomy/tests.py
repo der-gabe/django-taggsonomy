@@ -186,6 +186,25 @@ class TagSetAddBasicTests(TestCase):
         self.assertIn(self.tag0, self.tagset)
 
 
+class TagExclusionTests(TestCase):
+    """
+    Tests for Tag model's exclusion mechanism
+    """
+
+    def setUp(self):
+        self.tag0 = Tag.objects.create(name='foo')
+        self.tag1 = Tag.objects.create(name='bar')
+        self.tag0._exclusions.add(self.tag1)
+
+    def test_exclusion_relation_forwards(self):
+        self.assertEquals(self.tag0._exclusions.count(), 1)
+        self.assertTrue(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_exclusion_relation_backwards(self):
+        self.assertEquals(self.tag1._exclusions.count(), 1)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
+
 class TagSetRemoveTests(TestCase):
     """
     Tests for basic functionality provided by TagSet's `remove` method
