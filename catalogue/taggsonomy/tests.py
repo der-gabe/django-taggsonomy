@@ -194,15 +194,25 @@ class TagExclusionTests(TestCase):
     def setUp(self):
         self.tag0 = Tag.objects.create(name='foo')
         self.tag1 = Tag.objects.create(name='bar')
-        self.tag0._exclusions.add(self.tag1)
+        self.tag2 = Tag.objects.create(name='baz')
+        # Let tag0 exclude both other tags: tag1 *and* tag2
+        self.tag0._exclusions.add(self.tag1, self.tag2)
+        # Note that this does *not* mean that tag1 excludes tag2, or vice versa
 
     def test_exclusion_relation_forwards(self):
-        self.assertEquals(self.tag0._exclusions.count(), 1)
+        self.assertEquals(self.tag0._exclusions.count(), 2)
         self.assertTrue(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertTrue(self.tag0._exclusions.filter(id=self.tag2.id).exists())
 
     def test_exclusion_relation_backwards(self):
         self.assertEquals(self.tag1._exclusions.count(), 1)
         self.assertTrue(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+        self.assertEquals(self.tag2._exclusions.count(), 1)
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_exclusion_relation_does_not_affect_exclusion_relation_between_third_tags(self):
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertFalse(self.tag2._exclusions.filter(id=self.tag1.id).exists())
 
 
 class TagSetRemoveTests(TestCase):
