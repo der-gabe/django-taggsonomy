@@ -35,7 +35,8 @@ class TagSet(models.Model):
     def __str__(self):
         return 'TagSet for {}'.format(self.content_object)
 
-    def _get_tag_from_name(self, name, create_nonexisting=False):
+    @staticmethod
+    def _get_tag_from_name(name, create_nonexisting=False):
         """
         
         """
