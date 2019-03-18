@@ -214,6 +214,11 @@ class TagExclusionTests(TestCase):
         self.assertFalse(self.tag1._exclusions.filter(id=self.tag2.id).exists())
         self.assertFalse(self.tag2._exclusions.filter(id=self.tag1.id).exists())
 
+    def test_exclude_tag_instance(self):
+        self.tag1.exclude(self.tag2)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
 
 class TagSetRemoveTests(TestCase):
     """

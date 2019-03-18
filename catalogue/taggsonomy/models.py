@@ -12,6 +12,9 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    def exclude(self, tag):
+        self._exclusions.add(tag)
+
 
 class TagSet(models.Model):
     """
