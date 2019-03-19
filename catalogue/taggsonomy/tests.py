@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .errors import NoSuchTagError
+from .errors import NoSuchTagError, SelfExclusionError
 from .models import Tag, TagSet
 
 
@@ -222,6 +222,15 @@ class TagExclusionTests(TestCase):
         self.tag1.exclude(self.tag2)
         self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
         self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_tag_may_not_exclude_itself(self):
+        """
+        Self-exclusion is logical nonsense and must be prevented.
+        """
+        with self.assertRaises(SelfExclusionError):
+            self.tag0.exclude(self.tag0)
+        self.assertEquals(self.tag0._exclusions.count(), 2)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag0.id).exists())
 
 
 class TagSetRemoveTests(TestCase):

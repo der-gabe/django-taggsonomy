@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from .errors import NoSuchTagError
+from .errors import NoSuchTagError, SelfExclusionError
 
 
 class Tag(models.Model):
@@ -13,7 +13,18 @@ class Tag(models.Model):
         return self.name
 
     def exclude(self, tag):
-        self._exclusions.add(tag)
+        """
+        Add the given tag to this tag's exclusion list and vice versa.
+
+        Tags that exclude each other will never be present in the same tag set.
+
+        A tag may not exclude itself, as that makes no logical sense.
+        Attempts to do so will raise a SelfExclusionError.
+        """
+        if tag != self:
+            self._exclusions.add(tag)
+        else:
+            raise SelfExclusionError
 
 
 class TagSet(models.Model):
