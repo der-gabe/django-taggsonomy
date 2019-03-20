@@ -27,6 +27,38 @@ class TagManager(models.Manager):
         tag, _ = self.get_or_create(name=name)
         return tag
 
+    def get_tags_from_arguments(self, *args, create_nonexisting=False):
+        """
+        Return a set of Tag objects from positional arguments, which may be:
+        - tag instances (Tag objects),
+        - tag names (Tag.name (str)),
+        - or tag IDs (Tag.pk (int)).
+        """
+        # Also validate tags individually.
+        # Collect errors before raising or raise at the first problem
+        # encountered? Currently raises at first error...
+        tags = set()
+        for arg in args:
+            if isinstance(arg, Tag):
+                # It's already a Tag object, let's just use it.
+                tags.add(arg)
+            elif isinstance(arg, str):
+                # It's a string, i.e. it should be a tag name...
+                if create_nonexisting:
+                    tags.add(self.get_or_create_by_name(arg))
+                else:
+                    tags.add(self.get_by_name(arg))
+            elif isinstance(arg, int):
+                # It's an integer, i.e. it should be the tag's ID.
+                try:
+                    tags.add(self.get(pk=arg))
+                except Tag.DoesNotExist:
+                    raise NoSuchTagError
+            else:
+                # Unsupported type
+                raise NoSuchTagError
+        return tags
+
 
 class Tag(models.Model):
     _exclusions = models.ManyToManyField('self')
@@ -70,46 +102,13 @@ class TagSet(models.Model):
     def __str__(self):
         return 'TagSet for {}'.format(self.content_object)
 
-    @staticmethod
-    def _get_tags_from_args(*args, create_nonexisting=False):
-        """
-        Return a set of Tag objects from positional arguments, which may be:
-        - tag instances (Tag objects),
-        - tag names (Tag.name (str)),
-        - or tag IDs (Tag.pk (int)).
-        """
-        # Also validate tags individually.
-        # Collect errors before raising or raise at the first problem encountered?
-        # Currently raising at first error...
-        tags = set()
-        for arg in args:
-            if isinstance(arg, Tag):
-                # It's already a Tag object, let's just use it.
-                tags.add(arg)
-            elif isinstance(arg, str):
-                # It's a string, i.e. it should be a tag name...
-                if create_nonexisting:
-                    tags.add(Tag.objects.get_or_create_by_name(arg))
-                else:
-                    tags.add(Tag.objects.get_by_name(arg))
-            elif isinstance(arg, int):
-                # It's an integer, i.e. it should be the tag's ID.
-                try:
-                    tags.add(Tag.objects.get(pk=arg))
-                except Tag.DoesNotExist:
-                    raise NoSuchTagError
-            else:
-                # Unsupported type
-                raise NoSuchTagError
-        return tags                    
-            
-
     def add(self, *args, create_nonexisting=False):
         """
         Add the given tag(s) to this tag set
         """
+        kwargs = dict(create_nonexisting=create_nonexisting)
         # First, get tags from positional args, validating them individually
-        tags = self._get_tags_from_args(*args, create_nonexisting=create_nonexisting)
+        tags = Tag.objects.get_tags_from_arguments(*args, **kwargs)
         self._tags.add(*tags)
         # TODO: What should this method return?
 
@@ -129,6 +128,7 @@ class TagSet(models.Model):
         """
         Remove the given tag(s) from this tag set
         """
+        kwargs = dict(create_nonexisting=False)
         # First, get tags from positional args, validating them individually
-        tags = self._get_tags_from_args(*args, create_nonexisting=False)
+        tags = Tag.objects.get_tags_from_arguments(*args, **kwargs)
         self._tags.remove(*tags)
