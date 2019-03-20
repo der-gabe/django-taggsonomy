@@ -5,9 +5,24 @@ from django.db import models
 from .errors import NoSuchTagError, SelfExclusionError
 
 
+class TagManager(models.Manager):
+
+    def get_by_name(self, name):
+        """
+        Return the Tag with the given name
+
+        raises NoSuchTagError, if no tag by that name exists
+        """
+        try:
+            return self.get(name=name)
+        except Tag.DoesNotExist:
+            raise NoSuchTagError
+
+
 class Tag(models.Model):
     _exclusions = models.ManyToManyField('self')
     name = models.CharField(max_length=256, unique=True)
+    objects = TagManager()
 
     def __str__(self):
         return self.name
@@ -67,7 +82,7 @@ class TagSet(models.Model):
                 if create_nonexisting:
                     tags.add(get_or_create_tag_by_name(arg))
                 else:
-                    tags.add(get_tag_by_name(arg))
+                    tags.add(Tag.objects.get_by_name(arg))
             elif isinstance(arg, int):
                 # It's an integer, i.e. it should be the tag's ID.
                 try:
@@ -109,17 +124,6 @@ class TagSet(models.Model):
         tags = self._get_tags_from_args(*args, create_nonexisting=False)
         self._tags.remove(*tags)
 
-
-def get_tag_by_name(name):
-    """
-    Return the Tag with the given name
-
-    raises NoSuchTagError, if no tag by that name exists
-    """
-    try:
-        return Tag.objects.get(name=name)
-    except Tag.DoesNotExist:
-        raise NoSuchTagError
 
 def get_or_create_tag_by_name(name):
     """
