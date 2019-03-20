@@ -190,9 +190,9 @@ class TagSetAddBasicTests(TestCase):
         self.assertIn(self.tag0, self.tagset)
 
 
-class TagExclusionTests(TestCase):
+class ExclusionSetupMixin(object):
     """
-    Tests for Tag model's exclusion mechanism
+    Mixin to provide common setUp method for exclusion test cases
     """
 
     def setUp(self):
@@ -202,6 +202,11 @@ class TagExclusionTests(TestCase):
         # Let tag0 exclude both other tags: tag1 *and* tag2
         self.tag0._exclusions.add(self.tag1, self.tag2)
         # Note that this does *not* mean that tag1 excludes tag2, or vice versa
+
+class TagExclusionTests(ExclusionSetupMixin, TestCase):
+    """
+    Tests for Tag model's exclusion mechanism
+    """
 
     def test_exclusion_relation_forwards(self):
         self.assertEquals(self.tag0._exclusions.count(), 2)
