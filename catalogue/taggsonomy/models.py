@@ -18,6 +18,15 @@ class TagManager(models.Manager):
         except Tag.DoesNotExist:
             raise NoSuchTagError
 
+    def get_or_create_by_name(self, name):
+        """
+        Return a Tag with the given name
+
+        creates a Tag, if no tag by that name exists
+        """
+        tag, _ = self.get_or_create(name=name)
+        return tag
+
 
 class Tag(models.Model):
     _exclusions = models.ManyToManyField('self')
@@ -80,7 +89,7 @@ class TagSet(models.Model):
             elif isinstance(arg, str):
                 # It's a string, i.e. it should be a tag name...
                 if create_nonexisting:
-                    tags.add(get_or_create_tag_by_name(arg))
+                    tags.add(Tag.objects.get_or_create_by_name(arg))
                 else:
                     tags.add(Tag.objects.get_by_name(arg))
             elif isinstance(arg, int):
@@ -123,13 +132,3 @@ class TagSet(models.Model):
         # First, get tags from positional args, validating them individually
         tags = self._get_tags_from_args(*args, create_nonexisting=False)
         self._tags.remove(*tags)
-
-
-def get_or_create_tag_by_name(name):
-    """
-    Return a Tag with the given name
-
-    creates a Tag, if no tag by that name exists
-    """
-    tag, _ = Tag.objects.get_or_create(name=name)
-    return tag
