@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from .errors import NoSuchTagError, SelfExclusionError
+from .errors import MutualExclusionError, NoSuchTagError, SelfExclusionError
 
 
 class TagManager(models.Manager):
@@ -82,6 +82,12 @@ class Tag(models.Model):
         else:
             raise SelfExclusionError
 
+    def excludes(self, tag):
+        """
+        Return True if this tag excludes the given tag, False otherwise
+        """
+        return self._exclusions.filter(id=tag.id).exists()
+
 
 class TagSet(models.Model):
     """
@@ -109,6 +115,17 @@ class TagSet(models.Model):
         kwargs = dict(create_nonexisting=create_nonexisting)
         # First, get tags from positional args, validating them individually
         tags = Tag.objects.get_tags_from_arguments(*args, **kwargs)
+        # Next, check that the set of tags to be added does not, itself, contain
+        # mutually exclusive tags
+        if check_mutually_exclusive_tags(tags):
+            raise MutualExclusionError
+        # Now remove any present tags that are excluded by tags to be added
+        for present_tag in self._tags.all():
+            for new_tag in tags:
+                if new_tag.excludes(present_tag):
+                    self._tags.remove(present_tag)
+                    break
+        # Finally, add the new tags
         self._tags.add(*tags)
         # TODO: What should this method return?
 
@@ -132,3 +149,18 @@ class TagSet(models.Model):
         # First, get tags from positional args, validating them individually
         tags = Tag.objects.get_tags_from_arguments(*args, **kwargs)
         self._tags.remove(*tags)
+
+
+def check_mutually_exclusive_tags(tags):
+    """
+    Check whether the given set of tags contains mutually exclusive tags.
+
+    returns True if that is the case, False otherwise
+    """
+    found_exclusion = False
+    for tag in tags:
+        for other_tag in tags - set([tag]):
+            if tag.excludes(other_tag):
+                found_exclusion = True
+                break
+    return found_exclusion

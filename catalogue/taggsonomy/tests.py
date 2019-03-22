@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .errors import NoSuchTagError, SelfExclusionError
+from .errors import MutualExclusionError, NoSuchTagError, SelfExclusionError
 from .models import Tag, TagSet
 
 
@@ -236,6 +236,26 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
             self.tag0.exclude(self.tag0)
         self.assertEquals(self.tag0._exclusions.count(), 2)
         self.assertFalse(self.tag0._exclusions.filter(id=self.tag0.id).exists())
+
+
+class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
+    """
+    Tests for TagSet model's handling of tag exclusions
+    """
+
+    def setUp(self):
+        super(TagSetExclusionTests, self).setUp()
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_mutually_exclusive_tags_ERROR(self):
+        with self.assertRaises(MutualExclusionError):
+            self.tagset.add(self.tag0, self.tag1)
+        self.assertFalse(self.tagset.exists())
+
+    def test_adding_tag_excluded_by_already_present_tag(self):
+        self.tagset.add(self.tag0)
+        self.tagset.add(self.tag1)
+        self.assertEquals(self.tagset.count(), 1)
 
 
 class TagSetRemoveTests(TestCase):
