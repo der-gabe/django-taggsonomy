@@ -86,7 +86,8 @@ class TagSetAddBasicTests(TestCase):
 
     def test_add_several_nonexisting_tags_by_name_ERROR(self):
         """
-        Test attempt to add non-existing tags by name when `create_nonexisting=False`, which is the default
+        Test attempt to add non-existing tags by name when
+        `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
@@ -153,7 +154,8 @@ class TagSetAddBasicTests(TestCase):
         - Tag (instance),
         - int (ID) and
         - str (name),
-        including a non-existing tag by name (str) with `create_nonexisting=False`, which is the default
+        including a non-existing tag by name (str) with
+        `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
@@ -202,6 +204,7 @@ class ExclusionSetupMixin(object):
         # Let tag0 exclude both other tags: tag1 *and* tag2
         self.tag0._exclusions.add(self.tag1, self.tag2)
         # Note that this does *not* mean that tag1 excludes tag2, or vice versa
+
 
 class TagExclusionTests(ExclusionSetupMixin, TestCase):
     """
