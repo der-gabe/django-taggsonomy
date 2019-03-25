@@ -27,6 +27,39 @@ class TagManager(models.Manager):
         tag, _ = self.get_or_create(name=name)
         return tag
 
+    def get_tag_from_argument(self, argument, create_nonexisting=False):
+        """
+        Return a Tag object from the positional argument, which may be:
+        - a tag instances (Tag object),
+        - a tag name (Tag.name (str)),
+        - or a tag ID (Tag.pk (int)).
+
+        If the argument is a str and no tag by that name exists:
+        - raise NoSuchTagError, if create_nonexisting is False
+        - create and return such a Tag otherwise.
+
+        raises NoSuchTagError if the argument is an int and no tag with
+        such an ID exists.
+        """
+        if isinstance(argument, Tag):
+            # It's already a Tag object, let's just use it.
+            return argument
+        elif isinstance(argument, str):
+            # It's a string, i.e. it should be a tag name...
+            if create_nonexisting:
+                return self.get_or_create_by_name(argument)
+            else:
+                return self.get_by_name(argument)
+        elif isinstance(argument, int):
+            # It's an integer, i.e. it should be the tag's ID.
+            try:
+                return self.get(pk=argument)
+            except Tag.DoesNotExist:
+                raise NoSuchTagError
+        else:
+            # Unsupported type
+            raise NoSuchTagError
+
     def get_tags_from_arguments(self, *args, create_nonexisting=False):
         """
         Return a set of Tag objects from positional arguments, which may be:
@@ -38,25 +71,12 @@ class TagManager(models.Manager):
         # Collect errors before raising or raise at the first problem
         # encountered? Currently raises at first error...
         tags = set()
-        for arg in args:
-            if isinstance(arg, Tag):
-                # It's already a Tag object, let's just use it.
-                tags.add(arg)
-            elif isinstance(arg, str):
-                # It's a string, i.e. it should be a tag name...
-                if create_nonexisting:
-                    tags.add(self.get_or_create_by_name(arg))
-                else:
-                    tags.add(self.get_by_name(arg))
-            elif isinstance(arg, int):
-                # It's an integer, i.e. it should be the tag's ID.
-                try:
-                    tags.add(self.get(pk=arg))
-                except Tag.DoesNotExist:
-                    raise NoSuchTagError
-            else:
-                # Unsupported type
-                raise NoSuchTagError
+        for argument in args:
+            tags.add(
+                self.get_tag_from_argument(
+                    argument,
+                    create_nonexisting=create_nonexisting)
+            )
         return tags
 
 
