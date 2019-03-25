@@ -8,7 +8,7 @@ def get_tagset_for_object(object_):
     try:
         tagset = TagSet.objects.get(content_type=content_type,
                                     object_id=object_.id)
-    except TagSet.DoesNotExist:
+    except (AttributeError, TagSet.DoesNotExist):
         tagset = None
     return tagset
 
