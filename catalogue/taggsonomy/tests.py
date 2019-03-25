@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .errors import NoSuchTagError
+from .errors import MutualExclusionError, NoSuchTagError, SelfExclusionError
 from .models import Tag, TagSet
 
 
@@ -38,7 +38,7 @@ class TagSetAddBasicTests(TestCase):
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_single_nonexisting_tag_by_name(self):
-        self.tagset.add('foooo')
+        self.tagset.add('foooo', create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 1)
         self.assertTrue(self.tagset.filter(name='foooo').exists())
@@ -46,7 +46,7 @@ class TagSetAddBasicTests(TestCase):
 
     def test_add_single_nonexisting_tag_by_name_ERROR(self):
         with self.assertRaises(NoSuchTagError):
-            self.tagset.add('foooo', create_nonexisting=True)
+            self.tagset.add('foooo', create_nonexisting=False)
         self.assertFalse(self.tagset.exists())
 
     def test_add_several_tag_instances(self):
@@ -74,7 +74,10 @@ class TagSetAddBasicTests(TestCase):
         self.assertIn(self.tag2, self.tagset)
 
     def test_add_several_nonexisting_tags_by_name(self):
-        self.tagset.add('foooo', 'baaar', 'baaaz')
+        """
+        Test attempt to add non-existing tags by name when `create_nonexisting=True`
+        """
+        self.tagset.add('foooo', 'baaar', 'baaaz', create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 3)
         self.assertEquals(self.tagset.filter(name='foooo').count(), 1)
@@ -83,21 +86,23 @@ class TagSetAddBasicTests(TestCase):
 
     def test_add_several_nonexisting_tags_by_name_ERROR(self):
         """
-        Test attempt to add non-existing tags by name when `create_nonexisting=True`
+        Test attempt to add non-existing tags by name when
+        `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
         with self.assertRaises(NoSuchTagError):        
-            self.tagset.add('foooo', 'baaar', 'baaaz', create_nonexisting=True)
+            self.tagset.add('foooo', 'baaar', 'baaaz')
         self.assertFalse(self.tagset.exists())
 
     def test_add_several_tags_by_name(self):
         """
-        Test addition of existing and non-existing tags by name
+        Test addition of existing and non-existing tags by name when
+        `create_nonexisting=True`
         """
         self.tagset.add(
             self.tag0.name, self.tag1.name, self.tag2.name,
-            'foooo', 'baaar', 'baaaz'
+            'foooo', 'baaar', 'baaaz', create_nonexisting=True
         )
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 6)
@@ -114,14 +119,14 @@ class TagSetAddBasicTests(TestCase):
     def test_add_several_tags_by_name_ERROR(self):
         """
         Test attempt to add existing and non-existing tags by name when
-        `create_nonexisting=True`
+        `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
         with self.assertRaises(NoSuchTagError):        
             self.tagset.add(
                 self.tag0.name, self.tag1.name, self.tag2.name,
-                'foooo', 'baaar', 'baaaz', create_nonexisting=True
+                'foooo', 'baaar', 'baaaz'
             )
         self.assertFalse(self.tagset.exists())
 
@@ -131,9 +136,10 @@ class TagSetAddBasicTests(TestCase):
         - Tag (instance),
         - int (ID) and
         - str (name),
-        including a non-existing tag by name (str)
+        including a non-existing tag by name (str) with `create_nonexisting=True`
         """
-        self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo')
+        self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo',
+                        create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 4)
         self.assertIn(self.tag0, self.tagset)
@@ -148,13 +154,13 @@ class TagSetAddBasicTests(TestCase):
         - Tag (instance),
         - int (ID) and
         - str (name),
-        including a non-existing tag by name (str) with `create_nonexisting=True`
+        including a non-existing tag by name (str) with
+        `create_nonexisting=False`, which is the default
 
         Should not add any tags and instead raise `NoSuchTagError`
         """
         with self.assertRaises(NoSuchTagError):        
-            self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo',
-                            create_nonexisting=True)
+            self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo')
         self.assertFalse(self.tagset.exists())
 
     def test_add_same_tag_twice_simultaneously_by_instance(self):
@@ -184,6 +190,122 @@ class TagSetAddBasicTests(TestCase):
         self.assertTrue(self.tagset.exists())
         self.assertEquals(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
+
+
+class ExclusionSetupMixin(object):
+    """
+    Mixin to provide common setUp method for exclusion test cases
+    """
+
+    def setUp(self):
+        self.tag0 = Tag.objects.create(name='foo')
+        self.tag1 = Tag.objects.create(name='bar')
+        self.tag2 = Tag.objects.create(name='baz')
+        # Let tag0 exclude both other tags: tag1 *and* tag2
+        self.tag0._exclusions.add(self.tag1, self.tag2)
+        # Note that this does *not* mean that tag1 excludes tag2, or vice versa
+
+
+class TagExclusionTests(ExclusionSetupMixin, TestCase):
+    """
+    Tests for Tag model's exclusion mechanism
+    """
+
+    def test_exclusion_relation_forwards(self):
+        self.assertEquals(self.tag0._exclusions.count(), 2)
+        self.assertTrue(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertTrue(self.tag0._exclusions.filter(id=self.tag2.id).exists())
+
+    def test_exclusion_relation_backwards(self):
+        self.assertEquals(self.tag1._exclusions.count(), 1)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+        self.assertEquals(self.tag2._exclusions.count(), 1)
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_exclusion_relation_does_not_affect_exclusion_relation_between_third_tags(self):
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertFalse(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_exclude_method_with_tag_id(self):
+        self.tag1.exclude(self.tag2.id)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_exclude_method_with_tag_instance(self):
+        self.tag1.exclude(self.tag2)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_exclude_method_with_tag_name(self):
+        self.tag1.exclude(self.tag2.name)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_tag_may_not_exclude_itself(self):
+        """
+        Self-exclusion is logical nonsense and must be prevented.
+        """
+        with self.assertRaises(SelfExclusionError):
+            self.tag0.exclude(self.tag0)
+        self.assertEquals(self.tag0._exclusions.count(), 2)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag0.id).exists())
+        self.assertFalse(self.tag0.excludes(self.tag0))
+
+    def test_excludes_method_forwards_with_tag_ids(self):
+        self.assertTrue(self.tag0.excludes(self.tag1.id))
+        self.assertTrue(self.tag0.excludes(self.tag2.id))
+
+    def test_excludes_method_forwards_with_tag_instances(self):
+        self.assertTrue(self.tag0.excludes(self.tag1))
+        self.assertTrue(self.tag0.excludes(self.tag2))
+
+    def test_excludes_method_forwards_with_tag_names(self):
+        self.assertTrue(self.tag0.excludes(self.tag1.name))
+        self.assertTrue(self.tag0.excludes(self.tag2.name))
+
+    def test_excludes_method_backwards_with_tag_ids(self):
+        self.assertTrue(self.tag1.excludes(self.tag0.id))
+        self.assertTrue(self.tag2.excludes(self.tag0.id))
+
+    def test_excludes_method_backwards_with_tag_instances(self):
+        self.assertTrue(self.tag1.excludes(self.tag0))
+        self.assertTrue(self.tag2.excludes(self.tag0))
+
+    def test_excludes_method_backwards_with_tag_names(self):
+        self.assertTrue(self.tag1.excludes(self.tag0.name))
+        self.assertTrue(self.tag2.excludes(self.tag0.name))
+
+    def test_excludes_method_for_third_tags_with_tag_ids(self):
+        self.assertFalse(self.tag1.excludes(self.tag2.id))
+        self.assertFalse(self.tag2.excludes(self.tag1.id))
+
+    def test_excludes_method_for_third_tags_with_tag_instances(self):
+        self.assertFalse(self.tag1.excludes(self.tag2))
+        self.assertFalse(self.tag2.excludes(self.tag1))
+
+    def test_excludes_method_for_third_tags_with_tag_names(self):
+        self.assertFalse(self.tag1.excludes(self.tag2.name))
+        self.assertFalse(self.tag2.excludes(self.tag1.name))
+
+
+class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
+    """
+    Tests for TagSet model's handling of tag exclusions
+    """
+
+    def setUp(self):
+        super(TagSetExclusionTests, self).setUp()
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_mutually_exclusive_tags_ERROR(self):
+        with self.assertRaises(MutualExclusionError):
+            self.tagset.add(self.tag0, self.tag1)
+        self.assertFalse(self.tagset.exists())
+
+    def test_adding_tag_excluded_by_already_present_tag(self):
+        self.tagset.add(self.tag0)
+        self.tagset.add(self.tag1)
+        self.assertEquals(self.tagset.count(), 1)
 
 
 class TagSetRemoveTests(TestCase):

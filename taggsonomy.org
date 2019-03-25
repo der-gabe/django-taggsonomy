@@ -1,4 +1,9 @@
-Taggsonomy - tagging it seriously
+Taggsonomy
+* Taglines
+** Tagging it seriously
+** Tags done right.
+** Tag the World!
+** The labelmaker you won't wanna regift
 * Nomenclature
 ** Tags vs. labels :private_v_global_tags:
 … maybe for the distinction between global and private tags?
@@ -126,10 +131,18 @@ To have nicely formatted tags in the input field as well as the auto-complete su
 Implement decorator for taggable objects…
     `@taggsonomy.taggable`
 … instead of "forcing" models to include a "tags" field?
-*** TagSet as Descriptor
+*** TagSet…
+A TagSet is a Model that (merely/mainly-?) wraps a ManyToManyRelation so it should behave like a ManyRelatedManager.
+
+A ManyRelatedManager's `add` method accepts both object instances and object IDs as positional arguments, so TagSet.add should accept at least those, as well.
+
+That means, though, that to check for mutual exclusions in the set of submitted tags, we have to do some work, to turn the positional arguments into a set of Tag objects, which is rather inefficient.
+Since that is the case anyway, and since a Tag object is uniquely identified by it's name, we *can* also accept strings as positional arguments and resolve them to tags. When no tag by the name of a given string exists, a decision must be made whether to silently ignore it (no!), create a tag by that name, or treat it as an error.
+Currently, I decide between the latter two options with the help of a keyword argument `create_nonexisting`, which defaults to False. This makes the code to handle those positional arguments inelegant  and, I suspect, slow, though, so I wonder whether this really is the way to got...
+**** … as Descriptor
 This *might* allow some syntatctic sugar like
     file.tags = ['foo', 'bar']
-where file is an instance of a taggabel model class, like:
+where file is an instance of a taggable model class, like:
     class File(models.Model):
         tags = OneToOne(TagSet, …)
 `TagSet.__set__` could then make this essentially equivalent to:
