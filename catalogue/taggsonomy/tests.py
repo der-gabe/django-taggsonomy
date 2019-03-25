@@ -223,8 +223,18 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertFalse(self.tag1._exclusions.filter(id=self.tag2.id).exists())
         self.assertFalse(self.tag2._exclusions.filter(id=self.tag1.id).exists())
 
+    def test_exclude_method_with_tag_id(self):
+        self.tag1.exclude(self.tag2.id)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
     def test_exclude_method_with_tag_instance(self):
         self.tag1.exclude(self.tag2)
+        self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
+        self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
+
+    def test_exclude_method_with_tag_name(self):
+        self.tag1.exclude(self.tag2.name)
         self.assertTrue(self.tag1._exclusions.filter(id=self.tag2.id).exists())
         self.assertTrue(self.tag2._exclusions.filter(id=self.tag1.id).exists())
 
@@ -238,17 +248,41 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertFalse(self.tag0._exclusions.filter(id=self.tag0.id).exists())
         self.assertFalse(self.tag0.excludes(self.tag0))
 
-    def test_excludes_method_forwards(self):
+    def test_excludes_method_forwards_with_tag_ids(self):
+        self.assertTrue(self.tag0.excludes(self.tag1.id))
+        self.assertTrue(self.tag0.excludes(self.tag2.id))
+
+    def test_excludes_method_forwards_with_tag_instances(self):
         self.assertTrue(self.tag0.excludes(self.tag1))
         self.assertTrue(self.tag0.excludes(self.tag2))
 
-    def test_excludes_method_backwards(self):
+    def test_excludes_method_forwards_with_tag_names(self):
+        self.assertTrue(self.tag0.excludes(self.tag1.name))
+        self.assertTrue(self.tag0.excludes(self.tag2.name))
+
+    def test_excludes_method_backwards_with_tag_ids(self):
+        self.assertTrue(self.tag1.excludes(self.tag0.id))
+        self.assertTrue(self.tag2.excludes(self.tag0.id))
+
+    def test_excludes_method_backwards_with_tag_instances(self):
         self.assertTrue(self.tag1.excludes(self.tag0))
         self.assertTrue(self.tag2.excludes(self.tag0))
 
-    def test_excludes_method_for_third_tags(self):
+    def test_excludes_method_backwards_with_tag_names(self):
+        self.assertTrue(self.tag1.excludes(self.tag0.name))
+        self.assertTrue(self.tag2.excludes(self.tag0.name))
+
+    def test_excludes_method_for_third_tags_with_tag_ids(self):
+        self.assertFalse(self.tag1.excludes(self.tag2.id))
+        self.assertFalse(self.tag2.excludes(self.tag1.id))
+
+    def test_excludes_method_for_third_tags_with_tag_instances(self):
         self.assertFalse(self.tag1.excludes(self.tag2))
         self.assertFalse(self.tag2.excludes(self.tag1))
+
+    def test_excludes_method_for_third_tags_with_tag_names(self):
+        self.assertFalse(self.tag1.excludes(self.tag2.name))
+        self.assertFalse(self.tag2.excludes(self.tag1.name))
 
 
 class TagSetExclusionTests(ExclusionSetupMixin, TestCase):

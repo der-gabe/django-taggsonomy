@@ -90,23 +90,27 @@ class Tag(models.Model):
 
     def exclude(self, tag):
         """
-        Add the given tag to this tag's exclusion list and vice versa.
+        Add the given tag (instance, id or name) to this tag's exclusion list
+        and vice versa.
 
         Tags that exclude each other will never be present in the same tag set.
 
         A tag may not exclude itself, as that makes no logical sense.
         Attempts to do so will raise a SelfExclusionError.
         """
-        if tag != self:
-            self._exclusions.add(tag)
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        if tag_instance != self:
+            self._exclusions.add(tag_instance)
         else:
             raise SelfExclusionError
 
     def excludes(self, tag):
         """
-        Return True if this tag excludes the given tag, False otherwise
+        Return True if this tag (instance, id or name) excludes the given tag,
+        otherwise False.
         """
-        return self._exclusions.filter(id=tag.id).exists()
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        return self._exclusions.filter(id=tag_instance.id).exists()
 
 
 class TagSet(models.Model):
