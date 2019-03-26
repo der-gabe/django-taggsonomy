@@ -99,10 +99,12 @@ class Tag(models.Model):
         Attempts to do so will raise a SelfExclusionError.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
-        if tag_instance != self:
-            self._exclusions.add(tag_instance)
-        else:
+        if tag_instance == self:
             raise SelfExclusionError
+        elif any([tag_instance in tagset for tagset in self.tagsets.all()]):
+            raise MutualExclusionError
+        else:
+            self._exclusions.add(tag_instance)
 
     def excludes(self, tag):
         """
