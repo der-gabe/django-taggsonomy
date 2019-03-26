@@ -306,6 +306,7 @@ class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
         self.tagset.add(self.tag0)
         self.tagset.add(self.tag1)
         self.assertEquals(self.tagset.count(), 1)
+        self.assertTrue(self.tag1 in self.tagset)
 
 
 class TagSetRemoveTests(TestCase):
