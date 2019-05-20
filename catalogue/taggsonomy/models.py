@@ -141,6 +141,8 @@ class Tag(models.Model):
         Attempts to do this will raise a SimultaneousInclusionExclusionError.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
+        if tag_instance == self:
+            return
         self._inclusions.add(tag_instance)
 
 

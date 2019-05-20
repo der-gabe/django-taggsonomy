@@ -532,3 +532,14 @@ class TagInclusionTests(TestCase):
         self.assertEquals(self.supertag._inclusions.count(), 0)
         self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
         self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+
+    def test_self_inclusion_does_nothing(self):
+        """
+        A tag including itself, while not an error, is rather meaningless.
+
+        Attempting to do that should just have no effect at all.
+        """
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.subtag1.include(self.subtag1)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.subtag1.id).exists())
