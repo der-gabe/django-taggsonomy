@@ -496,9 +496,39 @@ class TagInclusionTests(TestCase):
     def setUp(self):
         self.supertag = Tag.objects.create(name='Programming')
         self.subtag0 = Tag.objects.create(name='Python')
+        self.subtag1 = Tag.objects.create(name='JavaScript')
         self.subtag0._inclusions.add(self.supertag)
 
     def test_inclusion_relation(self):
         self.assertEquals(self.subtag0._inclusions.count(), 1)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
         self.assertTrue(self.subtag0._inclusions.filter(id=self.supertag.id).exists())
         self.assertFalse(self.supertag._inclusions.filter(id=self.subtag0.id).exists())
+
+    def test_include_method_with_tag_id(self):
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
+        self.subtag1.include(self.supertag.id)
+        self.assertEquals(self.subtag1._inclusions.count(), 1)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
+        self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
+        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+
+    def test_include_method_with_tag_instance(self):
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
+        self.subtag1.include(self.supertag)
+        self.assertEquals(self.subtag1._inclusions.count(), 1)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
+        self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
+        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+
+    def test_include_method_with_tag_name(self):
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
+        self.subtag1.include(self.supertag.name)
+        self.assertEquals(self.subtag1._inclusions.count(), 1)
+        self.assertEquals(self.supertag._inclusions.count(), 0)
+        self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
+        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())

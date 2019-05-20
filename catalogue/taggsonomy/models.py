@@ -91,7 +91,7 @@ class Tag(models.Model):
 
     def exclude(self, tag):
         """
-        Add the given tag (instance, id or name) to this tag's exclusion set.
+        Add the given tag (instance, id or name) to this tag's exclusion set
         and vice versa.
 
         Tags that exclude each other will never be present in the same tag set.
@@ -102,6 +102,9 @@ class Tag(models.Model):
         A tag may not exclude another tag if both are already jointly present in
         the same TagSet.
         Attempts to do this will raise a MutualExclusionError.
+
+        A tag may not simultaneously exclude and include another tag.
+        Attempts to do this will raise a SimultaneousInclusionExclusionError.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
@@ -126,6 +129,19 @@ class Tag(models.Model):
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         self._exclusions.remove(tag_instance)
+
+    def include(self, tag):
+        """
+        Add the given tag (instance, id or name) to this tag's inclusion set.
+
+        A tag that includes another tag will never be present in a tag set
+        without the other tag.
+
+        A tag may not simultaneously include and exclude another tag.
+        Attempts to do this will raise a SimultaneousInclusionExclusionError.
+        """
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        self._inclusions.add(tag_instance)
 
 
 class TagSet(models.Model):
