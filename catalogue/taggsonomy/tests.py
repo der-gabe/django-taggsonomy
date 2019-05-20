@@ -499,9 +499,9 @@ class TagSetRemoveTests(TestCase):
         self.assertIn(self.tag2, self.tagset)
 
 
-class TagInclusionTests(TestCase):
+class InclusionSetupMixin(object):
     """
-    Test for Tag model's inclusion mechanism
+    Mixin to provide common setUp method for inclusion test cases
     """
 
     def setUp(self):
@@ -509,6 +509,12 @@ class TagInclusionTests(TestCase):
         self.subtag0 = Tag.objects.create(name='Python')
         self.subtag1 = Tag.objects.create(name='JavaScript')
         self.subtag0._inclusions.add(self.supertag)
+
+
+class TagInclusionTests(InclusionSetupMixin, TestCase):
+    """
+    Test for Tag model's inclusion mechanism
+    """
 
     def test_inclusion_relation(self):
         self.assertEquals(self.subtag0._inclusions.count(), 1)
