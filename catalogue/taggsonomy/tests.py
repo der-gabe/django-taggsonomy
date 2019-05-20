@@ -554,3 +554,13 @@ class TagInclusionTests(TestCase):
         self.subtag1.include(self.subtag1)
         self.assertEquals(self.subtag1._inclusions.count(), 0)
         self.assertFalse(self.subtag1._inclusions.filter(id=self.subtag1.id).exists())
+
+    def test_include_excluded_tag_ERROR(self):
+        """
+        A tag cannot simultaneously include and exclude another.
+        """
+        self.subtag0.exclude(self.subtag1)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.subtag0.include(self.subtag1)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.subtag1.include(self.subtag0)

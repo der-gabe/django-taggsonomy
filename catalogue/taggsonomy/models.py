@@ -148,6 +148,8 @@ class Tag(models.Model):
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
             return
+        elif self.excludes(tag_instance):
+            raise SimultaneousInclusionExclusionError
         self._inclusions.add(tag_instance)
 
 
