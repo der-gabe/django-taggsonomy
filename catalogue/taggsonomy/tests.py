@@ -570,3 +570,24 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
             self.subtag0.include(self.subtag1)
         with self.assertRaises(SimultaneousInclusionExclusionError):
             self.subtag1.include(self.subtag0)
+
+    # TODO: Test that letting tag A include tag B adds tag B to any tag set that A is already a part of.
+
+
+class TagSetInclusionTests(InclusionSetupMixin, TestCase):
+    """
+    Tests for TagSet model's handling of tag inclusions
+    """
+
+    def setUp(self):
+        super(TagSetInclusionTests, self).setUp()
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_tag_that_includes_other_tag_adds_both(self):
+        self.assertEquals(self.tagset.count(), 0)
+        self.tagset.add(self.subtag0)
+        self.assertTrue(self.subtag0 in self.tagset)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertTrue(self.supertag in self.tagset)
+
+    # TODO: Test inclusion chain, e.g. Django includes Python includes Programming
