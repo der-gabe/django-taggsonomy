@@ -9,3 +9,6 @@ class NoSuchTagError(TaggsonomyError):
 
 class SelfExclusionError(TaggsonomyError):
     pass
+
+class SimultaneousInclusionExclusionError(TaggsonomyError):
+    pass

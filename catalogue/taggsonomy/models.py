@@ -2,7 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from .errors import MutualExclusionError, NoSuchTagError, SelfExclusionError
+from .errors import (MutualExclusionError, NoSuchTagError, SelfExclusionError,
+                     SimultaneousInclusionExclusionError)
 
 
 class TagManager(models.Manager):
@@ -103,12 +104,16 @@ class Tag(models.Model):
         the same TagSet.
         Attempts to do this will raise a MutualExclusionError.
 
-        A tag may not simultaneously exclude and include another tag.
+        A tag that includes another tag, or is included by it,
+        may not simultaneously exclude said other tag.
         Attempts to do this will raise a SimultaneousInclusionExclusionError.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
             raise SelfExclusionError
+        elif self._inclusions.filter(id=tag_instance.id).exists()\
+             or tag_instance._inclusions.filter(id=self.id).exists():
+            raise SimultaneousInclusionExclusionError
         elif any([tag_instance in tagset for tagset in self.tagsets.all()]):
             raise MutualExclusionError
         else:

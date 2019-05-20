@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from .errors import MutualExclusionError, NoSuchTagError, SelfExclusionError
+from .errors import (MutualExclusionError, NoSuchTagError, SelfExclusionError,
+                     SimultaneousInclusionExclusionError)
 from .models import Tag, TagSet
 
 
@@ -319,6 +320,16 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.tag0.unexclude(self.tag1.name)
         self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
         self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_exclude_included_tag_ERROR(self):
+        """
+        A tag cannot simultaneously include and exclude another.
+        """
+        self.tag1._inclusions.add(self.tag2)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.tag1.exclude(self.tag2)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.tag2.exclude(self.tag1)
 
 
 class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
