@@ -287,6 +287,39 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertFalse(self.tag1.excludes(self.tag2.name))
         self.assertFalse(self.tag2.excludes(self.tag1.name))
 
+    def test_tag_cannot_exclude_other_tag_when_both_already_jointly_present_in_same_tagset(self):
+        # Create a TagSet and add two tags that *don't* exclude each other (yet).
+        self.tagset = TagSet.objects.create()
+        self.tagset.add(self.tag1, self.tag2)
+        # Now try to have one tag exclude the other - this should fail!
+        with self.assertRaises(MutualExclusionError):
+            self.tag1.exclude(self.tag2)
+        with self.assertRaises(MutualExclusionError):
+            self.tag1.exclude(self.tag2.id)
+        with self.assertRaises(MutualExclusionError):
+            self.tag1.exclude(self.tag2.name)
+        with self.assertRaises(MutualExclusionError):
+            self.tag2.exclude(self.tag1)
+        with self.assertRaises(MutualExclusionError):
+            self.tag2.exclude(self.tag1.id)
+        with self.assertRaises(MutualExclusionError):
+            self.tag2.exclude(self.tag1.name)
+
+    def test_unexclude_method_with_tag_id(self):
+        self.tag0.unexclude(self.tag1.id)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_unexclude_method_with_tag_instance(self):
+        self.tag0.unexclude(self.tag1)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_unexclude_method_with_tag_name(self):
+        self.tag0.unexclude(self.tag1.name)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
 
 class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
     """
@@ -306,6 +339,7 @@ class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
         self.tagset.add(self.tag0)
         self.tagset.add(self.tag1)
         self.assertEquals(self.tagset.count(), 1)
+        self.assertTrue(self.tag1 in self.tagset)
 
 
 class TagSetRemoveTests(TestCase):
