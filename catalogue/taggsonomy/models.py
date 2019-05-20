@@ -81,6 +81,7 @@ class TagManager(models.Manager):
 
 
 class Tag(models.Model):
+    _inclusions = models.ManyToManyField('self', symmetrical=False)
     _exclusions = models.ManyToManyField('self')
     name = models.CharField(max_length=256, unique=True)
     objects = TagManager()
