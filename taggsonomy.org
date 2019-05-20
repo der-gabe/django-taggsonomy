@@ -51,6 +51,9 @@ E.g. only objects with global/admin level tag "X", "user:X" or "group:x" are vis
 … like dates, coordinates, annotations, people etc.
 Basically, generic object (key/value) store.
 [[https://orgmode.org/manual/Properties-and-columns.html#Properties-and-columns][Org-mode calls these "properties".]]
+*** Alternative names
+**** Complex tags
+**** Composite tags
 *** Format
 Colon as separator, could only be a convention, but could also trigger some additional processing in the background, e.g. validation, ordering etc.
 *** Examples
@@ -65,6 +68,26 @@ These are basically object relations. Could be one-to-one, one-to-many or many-t
 Backwards relations need to be defined so they can be implemented automatically.
 Now we're really getting into object DB territory, I wonder whether this is still a good idea…
 ***** TODO research RDF and related technologies (Wikidata?) again
+*** Implementation
+The `name` attribute identifies the kind of tag, i.e. the tag's data type.
+That means the `name` is not unique anymore, but the combination `name` + value is.
+**** Worst, but easiest
+One `name` column.
+One attribute/column per possible data type.
+***** Problems:
+****** Each tag can only have one value, but how to ensure that?
+****** Different tags with the same name must have the same type of value, but how to ensure that?
+****** Adding a new data type requires a migration of the tag table and allowing users to add their own data types is out of the question.
+**** Better
+One `name` column.
+One column for the data type, identifying the table that stores tag values of that type.
+A second column for the Id of the entry in said table.
+***** Problems:
+****** Different tags with the same name must have the same type of value, but how to ensure that?
+****** Adding a new data type requires… what? Adding a new table and a corresponding choice?
+**** Better yet
+One column for the tag type, i.e. name + data type.
+Once column for the tag value.
 ** Auto-tagging
 … could be implemented opportunistically in filters, scanners, fetchers etc.
 *** could also be done based on other tag transitions
@@ -106,7 +129,7 @@ List of tags that can be pulled open from the side and contains a simple list of
 ** Aggregation :structured_metadata_tags:
 E.g. The question "How many seasons of The Big Bang Theory are there (in the system)?" translates to "How many tags of class/form "season: …" are there, which are used together with the tag "the big bang theory"?
 The question "Is Season X of The Big Bang Theory complete?" is more complicated, but it's solvable in several ways. Either by filtering by show title and season number and comparing the number of results with the highest episode number, or by having tags for "first episode in season", "following episode: <object>", (optionally "preceding episode: <other object>") and "last episode in season" and by checking whether the chain of following episodes is unbroken.
-
+** Tag set theory with Venn diagrams
 * Tag groups :tag_groups:
 :PROPERTIES:
 :Milestone: 1
