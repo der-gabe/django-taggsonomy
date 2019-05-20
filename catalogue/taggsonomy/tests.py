@@ -495,10 +495,10 @@ class TagInclusionTests(TestCase):
 
     def setUp(self):
         self.supertag = Tag.objects.create(name='Programming')
-        self.subtag = Tag.objects.create(name='Python')
-        self.subtag._inclusions.add(self.supertag)
+        self.subtag0 = Tag.objects.create(name='Python')
+        self.subtag0._inclusions.add(self.supertag)
 
     def test_inclusion_relation(self):
-        self.assertEquals(self.subtag._inclusions.count(), 1)
-        self.assertTrue(self.subtag._inclusions.filter(id=self.supertag.id).exists())
-        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag.id).exists())
+        self.assertEquals(self.subtag0._inclusions.count(), 1)
+        self.assertTrue(self.subtag0._inclusions.filter(id=self.supertag.id).exists())
+        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag0.id).exists())
