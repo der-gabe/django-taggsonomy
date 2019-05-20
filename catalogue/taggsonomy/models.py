@@ -97,6 +97,10 @@ class Tag(models.Model):
 
         A tag may not exclude itself, as that makes no logical sense.
         Attempts to do so will raise a SelfExclusionError.
+
+        A tag may not exclude another tag if both are already jointly present in
+        the same TagSet.
+        Attempts to do this will raise a MutualExclusionError.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
