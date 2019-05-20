@@ -305,6 +305,21 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         with self.assertRaises(MutualExclusionError):
             self.tag2.exclude(self.tag1.name)
 
+    def test_unexclude_method_with_tag_id(self):
+        self.tag0.unexclude(self.tag1.id)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_unexclude_method_with_tag_instance(self):
+        self.tag0.unexclude(self.tag1)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
+    def test_unexclude_method_with_tag_name(self):
+        self.tag0.unexclude(self.tag1.name)
+        self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
+        self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
+
 
 class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
     """

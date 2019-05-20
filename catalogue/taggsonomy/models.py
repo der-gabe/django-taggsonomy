@@ -90,7 +90,7 @@ class Tag(models.Model):
 
     def exclude(self, tag):
         """
-        Add the given tag (instance, id or name) to this tag's exclusion list
+        Add the given tag (instance, id or name) to this tag's exclusion set.
         and vice versa.
 
         Tags that exclude each other will never be present in the same tag set.
@@ -117,6 +117,14 @@ class Tag(models.Model):
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         return self._exclusions.filter(id=tag_instance.id).exists()
+
+    def unexclude(self, tag):
+        """
+        Remove the given tag (instance, id or name) from this tag's exclusion
+        set, if present.
+        """
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        self._exclusions.remove(tag_instance)
 
 
 class TagSet(models.Model):
