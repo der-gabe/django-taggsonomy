@@ -571,6 +571,24 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
         with self.assertRaises(SimultaneousInclusionExclusionError):
             self.subtag1.include(self.subtag0)
 
+    def test_includes_method_with_tag_ids(self):
+        self.assertTrue(self.subtag0.includes(self.supertag.id))
+        self.assertFalse(self.subtag1.includes(self.supertag.id))
+        self.assertFalse(self.supertag.includes(self.subtag0.id))
+        self.assertFalse(self.supertag.includes(self.subtag1.id))
+
+    def test_includes_method_with_tag_instances(self):
+        self.assertTrue(self.subtag0.includes(self.supertag))
+        self.assertFalse(self.subtag1.includes(self.supertag))
+        self.assertFalse(self.supertag.includes(self.subtag0))
+        self.assertFalse(self.supertag.includes(self.subtag1))
+
+    def test_includes_method_with_tag_names(self):
+        self.assertTrue(self.subtag0.includes(self.supertag.name))
+        self.assertFalse(self.subtag1.includes(self.supertag.name))
+        self.assertFalse(self.supertag.includes(self.subtag0.name))
+        self.assertFalse(self.supertag.includes(self.subtag1.name))
+
     # TODO: Test that letting tag A include tag B adds tag B to any tag set that A is already a part of.
 
 

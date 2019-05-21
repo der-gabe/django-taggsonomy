@@ -152,6 +152,14 @@ class Tag(models.Model):
             raise SimultaneousInclusionExclusionError
         self._inclusions.add(tag_instance)
 
+    def includes(self, tag):
+        """
+        Return True if this tag (instance, id or name) includes the given tag,
+        otherwise False.
+        """
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        return self._inclusions.filter(id=tag_instance.id).exists()
+
 
 class TagSet(models.Model):
     """
