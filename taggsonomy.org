@@ -195,7 +195,8 @@ What about directionality?
   … which would be equivalent to:
 "…/tags/foo/baz/bar/",
 
-
+** JS library
+Maintain independently of Django app?
 ** Python library(?) :python_taggsonomy:
 Pure Python, no Django ORM, therefore no assumption about persistence possible and object relations need to be handled Pythonically.
 
