@@ -199,11 +199,9 @@ class TagSet(models.Model):
                     break
         # Finally, add the new tags…
         self._tags.add(*tags)
-        # … and then add any tags included by those already in this set.
-        included_tag_ids = set()
-        for tag in self._tags.all():
-            included_tag_ids.update(tag._inclusions.values_list('id', flat=True))
-        self._tags.add(*included_tag_ids)
+        # … and then add any tags that include those already in this set.
+        supertags = Tag.objects.filter(_inclusions__in=self._tags.all())
+        self._tags.add(*supertags)
         # TODO: What should this method return?
 
     def all(self, *args, **kwargs):

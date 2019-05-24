@@ -508,7 +508,7 @@ class InclusionSetupMixin(object):
         self.supertag = Tag.objects.create(name='Programming')
         self.subtag0 = Tag.objects.create(name='Python')
         self.subtag1 = Tag.objects.create(name='JavaScript')
-        self.subtag0._inclusions.add(self.supertag)
+        self.supertag._inclusions.add(self.subtag0)
 
 
 class TagInclusionTests(InclusionSetupMixin, TestCase):
@@ -517,38 +517,38 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
     """
 
     def test_inclusion_relation(self):
-        self.assertEquals(self.subtag0._inclusions.count(), 1)
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEquals(self.subtag0._inclusions.count(), 0)
         self.assertEquals(self.subtag1._inclusions.count(), 0)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.assertTrue(self.subtag0._inclusions.filter(id=self.supertag.id).exists())
-        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag0.id).exists())
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag0.id).exists())
+        self.assertFalse(self.subtag0._inclusions.filter(id=self.supertag.id).exists())
 
     def test_include_method_with_tag_id(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
         self.assertEquals(self.subtag1._inclusions.count(), 0)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.subtag1.include(self.supertag.id)
-        self.assertEquals(self.subtag1._inclusions.count(), 1)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
-        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.supertag.include(self.subtag1.id)
+        self.assertEquals(self.supertag._inclusions.count(), 2)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
     def test_include_method_with_tag_instance(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
         self.assertEquals(self.subtag1._inclusions.count(), 0)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.subtag1.include(self.supertag)
-        self.assertEquals(self.subtag1._inclusions.count(), 1)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
-        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.supertag.include(self.subtag1)
+        self.assertEquals(self.supertag._inclusions.count(), 2)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
     def test_include_method_with_tag_name(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
         self.assertEquals(self.subtag1._inclusions.count(), 0)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.subtag1.include(self.supertag.name)
-        self.assertEquals(self.subtag1._inclusions.count(), 1)
-        self.assertEquals(self.supertag._inclusions.count(), 0)
-        self.assertTrue(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
-        self.assertFalse(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.supertag.include(self.subtag1.name)
+        self.assertEquals(self.supertag._inclusions.count(), 2)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
     def test_self_inclusion_does_nothing(self):
         """
@@ -572,22 +572,22 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
             self.subtag1.include(self.subtag0)
 
     def test_includes_method_with_tag_ids(self):
-        self.assertTrue(self.subtag0.includes(self.supertag.id))
-        self.assertFalse(self.subtag1.includes(self.supertag.id))
-        self.assertFalse(self.supertag.includes(self.subtag0.id))
+        self.assertTrue(self.supertag.includes(self.subtag0.id))
         self.assertFalse(self.supertag.includes(self.subtag1.id))
+        self.assertFalse(self.subtag0.includes(self.supertag.id))
+        self.assertFalse(self.subtag1.includes(self.supertag.id))
 
     def test_includes_method_with_tag_instances(self):
-        self.assertTrue(self.subtag0.includes(self.supertag))
-        self.assertFalse(self.subtag1.includes(self.supertag))
-        self.assertFalse(self.supertag.includes(self.subtag0))
+        self.assertTrue(self.supertag.includes(self.subtag0))
         self.assertFalse(self.supertag.includes(self.subtag1))
+        self.assertFalse(self.subtag0.includes(self.supertag))
+        self.assertFalse(self.subtag1.includes(self.supertag))
 
     def test_includes_method_with_tag_names(self):
-        self.assertTrue(self.subtag0.includes(self.supertag.name))
-        self.assertFalse(self.subtag1.includes(self.supertag.name))
-        self.assertFalse(self.supertag.includes(self.subtag0.name))
+        self.assertTrue(self.supertag.includes(self.subtag0.name))
         self.assertFalse(self.supertag.includes(self.subtag1.name))
+        self.assertFalse(self.subtag0.includes(self.supertag.name))
+        self.assertFalse(self.subtag1.includes(self.supertag.name))
 
     # TODO: Test that letting tag A include tag B adds tag B to any tag set that A is already a part of.
     # TODO: Test that a tag may not simultaneously include mutually exclusive tags.
@@ -603,7 +603,7 @@ class TagSetInclusionTests(InclusionSetupMixin, TestCase):
         super(TagSetInclusionTests, self).setUp()
         self.tagset = TagSet.objects.create()
 
-    def test_adding_tag_that_includes_other_tag_adds_both(self):
+    def test_adding_tag_that_is_included_by_other_tag_adds_both(self):
         self.assertEquals(self.tagset.count(), 0)
         self.tagset.add(self.subtag0)
         self.assertTrue(self.subtag0 in self.tagset)
