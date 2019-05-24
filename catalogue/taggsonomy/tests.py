@@ -590,6 +590,8 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
         self.assertFalse(self.supertag.includes(self.subtag1.name))
 
     # TODO: Test that letting tag A include tag B adds tag B to any tag set that A is already a part of.
+    # TODO: Test that a tag may not simultaneously include mutually exclusive tags.
+    # TODO: Test that circular inclusions are not allowed
 
 
 class TagSetInclusionTests(InclusionSetupMixin, TestCase):
