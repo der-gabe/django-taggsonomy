@@ -16,23 +16,46 @@ globally unique (per system)
 only unique per user, duplicates (by name) can exist, but are of course completely separate objects
 *** Group tags? :private_v_global_tags:
 ** Tag relations
-*** Mutually exclusive tags :MVP:
+*** Exclusions (mutually exclusive tags)                                :MVP:
 :PROPERTIES:
 :Milestone: 0
 :END:
 "A excludes B"
 - Note that "A excludes B" implicitely also means "B excludes A", but the code should make this explicit.
 - In this situation, adding tag "B" to an object that already has tag "A" will silently remove tag "A".
-*** "Implications" :MVP:
+*** Inclusions (Subtags and Supertags)                                  :MVP:
 :PROPERTIES:
 :Milestone: 0
 :END:
-- Either "A implies B" (objects tagged B then form a superset of those tagged A), or - arguably more useful - "A implies (B or C [or …])".
-- Especially useful in conjunction with mutually exclusive tags (then becomes "either B or C [or …]"), but not only (then becomes "B and/or C [and/or …]").
-**** Implication of tag groups should be allowed :tag_groups:
+If there's a tag "Programming" and a tag "Python", then it might make sense for all objects tagged "Python" to also be tagged "Programming".
+In fact, a user might want to automate this in some way. That's what inclusions are for. We can let "Programming" *include* "Python" and then each object tagged "Python" will also be tagged "Programming".
+Practically, this means that if "Python" is included by "Programming" then adding the tag "Python" to any tag set will automatically also add "Programming" to it.
+We call "Programming" a *supertag* of "Python" and "Python" a *subtag* of "Programming".
+Each tag can be a supertag, subtag, none or both.
+**** Renaming this feature
+Originally, I implemented this such that the subtag "included" the supertag, i.e. you would call `subtag.include(supertag)`.
+From an implementation standpoint this seemed to make sense, since adding the subtag to a tag set also "pulls in" (thus, "includes") the supertag.
+
+But that makes the nomenclature misleading, because if you implement it this way you'd end up having to say: "The tag 'Python' includes the tag 'Programming'.", which runs contrary to common usage where the *topic* 'Programming' includes the topic 'Python'.
+I decided to, essentially, reverse the meaning to conform to expectations.
+
+So if I have
+```
+supertag = Tag('Programming')
+subtag = Tag('Python')
+```
+I should then call `supertag.include(subtag)`, `supertag.includes(subtag)` shoudl return `True` and adding `subtag` ("Python") to a tag set should also add `supertag` ("Programming") to it.
+**** Subtags with mutually exclusive supertags
+… are a problem.
+**** Inclusion by tag groups                                     :tag_groups:
 :PROPERTIES:
 :Milestone: 1
 :END:
+If a subtag is included by a group tag, then when the subtag is added to a tag set, it "pulls in" all the tags in the group.
+Except if the tag group consists of mutually exclusive tags, then it becomes harder to figure out which one of the tags in the group to add.
+Basically, we cannot decide this automatically in this case and need help from the user.
+**** Circular inclusions should not be allowed
+… as they would lead to all kinds of problems (inclusion graph not directed anymore) and has no conceivable benefit for the user (all tags in a closed inclusion circle are functionally identical)
 *** Ordering :MVP:
 :PROPERTIES:
 :Milestone: 0
