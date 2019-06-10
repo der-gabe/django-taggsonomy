@@ -12,3 +12,6 @@ class SelfExclusionError(TaggsonomyError):
 
 class SimultaneousInclusionExclusionError(TaggsonomyError):
     pass
+
+class CircularInclusionError(TaggsonomyError):
+    pass

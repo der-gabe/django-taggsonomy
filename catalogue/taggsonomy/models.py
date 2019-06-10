@@ -2,7 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from .errors import (MutualExclusionError, NoSuchTagError, SelfExclusionError,
+from .errors import (CircularInclusionError, MutualExclusionError,
+                     NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError)
 
 
@@ -137,28 +138,41 @@ class Tag(models.Model):
 
     def include(self, tag):
         """
-        Add the given tag (instance, id or name) to this tag's inclusion set.
+        Add the given tag (instance, id or name) to this tag's inclusion set,
+        i.e. make the given tag a subtag of this one and make this tag a
+        supertag of the given tag.
 
-        A tag that includes another tag will never be present in a tag set
-        without the other tag.
+        A tag that includes another tag will always be present in any tag set
+        that includes the other tag, unless removed manually at some later
+        point.
 
         A tag may not simultaneously include and exclude another tag.
         Attempts to do this will raise a SimultaneousInclusionExclusionError.
+
+        A chain of inclusions starting from one tag may not loop around back to
+        the same tag. Attempts to achieve this will raise a 
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
             return
         elif self.excludes(tag_instance):
             raise SimultaneousInclusionExclusionError
+        elif tag_instance.includes(self):
+            raise CircularInclusionError
         self._inclusions.add(tag_instance)
 
     def includes(self, tag):
         """
         Return True if this tag (instance, id or name) includes the given tag,
-        otherwise False.
+        either directly or indirectly, otherwise False.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
-        return self._inclusions.filter(id=tag_instance.id).exists()
+        if self._inclusions.filter(id=tag_instance.id).exists():
+            return True
+        for included_tag in self._inclusions.all():
+            if included_tag.includes(tag_instance):
+                return True
+        return False
 
 
 class TagSet(models.Model):

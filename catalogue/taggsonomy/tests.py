@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from .errors import (MutualExclusionError, NoSuchTagError, SelfExclusionError,
+from .errors import (CircularInclusionError, MutualExclusionError,
+                     NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError)
 from .models import Tag, TagSet
 
@@ -690,3 +691,15 @@ class BasicExclusionTests(TestCase):
         self.assertIn(taggsonomy, tagset)
         with self.assertRaises(MutualExclusionError):
             tagging.exclude(taggsonomy)
+
+
+class NewInclusionRelationTests(TestCase):
+    """
+    Tests for various scenarios involving the adding of new inclusion relations
+    """
+    fixtures = ['tags.json', 'tagsets.json']
+
+    def test_circular_inclusion_ERROR(self):
+        with self.assertRaises(CircularInclusionError):
+            Tag.objects.get(name='Django')\
+                       .include(Tag.objects.get(name='Programming'))
