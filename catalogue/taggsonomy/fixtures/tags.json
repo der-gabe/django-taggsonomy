@@ -1,0 +1,74 @@
+[
+{
+    "model": "taggsonomy.tag",
+    "pk": 1,
+    "fields": {
+        "name": "Django",
+        "_inclusions": [],
+        "_exclusions": []
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 2,
+    "fields": {
+        "name": "Python",
+        "_inclusions": [1],
+        "_exclusions": []
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 3,
+    "fields": {
+        "name": "JavaScript",
+        "_inclusions": [],
+        "_exclusions": []
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 4,
+    "fields": {
+        "name": "Programming",
+        "_inclusions": [2, 3],
+        "_exclusions": []
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 5,
+    "fields": {
+        "name": "Web Development",
+        "_inclusions": [3],
+        "_exclusions": []
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 6,
+    "fields": {
+        "name": "Tagging",
+        "_inclusions": [],
+        "_exclusions": []
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 7,
+    "fields": {
+        "name": "Knowledge Management",
+        "_inclusions": [6],
+        "_exclusions": [4]
+    }
+},
+{
+    "model": "taggsonomy.tag",
+    "pk": 8,
+    "fields": {
+        "name": "Taggsonomy",
+        "_inclusions": [],
+        "_exclusions": []
+    }
+}
+]

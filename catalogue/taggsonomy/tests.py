@@ -610,4 +610,53 @@ class TagSetInclusionTests(InclusionSetupMixin, TestCase):
         self.assertEquals(self.tagset.count(), 2)
         self.assertTrue(self.supertag in self.tagset)
 
-    # TODO: Test inclusion chain, e.g. Django includes Python includes Programming
+
+class BasicInclusionTests(TestCase):
+    """
+    Tests for various inclusion scenarios
+    """
+    fixtures = ['tags.json']
+
+    def setUp(self):
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_tag_with_subtag_to_tagset_also_adds_subtag(self):
+        self.tagset.add(Tag.objects.get(name='Tagging'))
+        self.assertIn(
+            Tag.objects.get(name='Knowledge Management'),
+            self.tagset
+        )
+
+    def test_adding_tag_with_sub_and_supertag_to_tagset_adds_subtag_not_supertag(self):
+        self.tagset.add(Tag.objects.get(name='Python'))
+        self.assertIn(
+            Tag.objects.get(name='Programming'),
+            self.tagset
+        )
+        self.assertNotIn(
+            Tag.objects.get(name='Django'),
+            self.tagset
+        )
+        
+    def test_adding_tag_with_two_subtags_to_tagset_adds_both_subtags(self):
+        self.tagset.add(Tag.objects.get(name='JavaScript'))
+        self.assertIn(
+            Tag.objects.get(name='Programming'),
+            self.tagset
+        )
+        self.assertIn(
+            Tag.objects.get(name='Web Development'),
+            self.tagset
+        )
+
+    def test_adding_tag_subsubtag_to_tagset_adds_subtag_and_subsubtag(self):
+        self.tagset.add(Tag.objects.get(name='Django'))
+        self.assertIn(
+            Tag.objects.get(name='Python'),
+            self.tagset
+        )
+        self.assertIn(
+            Tag.objects.get(name='Programming'),
+            self.tagset
+        )
+        

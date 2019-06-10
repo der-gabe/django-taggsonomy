@@ -197,11 +197,17 @@ class TagSet(models.Model):
                 if new_tag.excludes(present_tag):
                     self._tags.remove(present_tag)
                     break
-        # Finally, add the new tags…
+        # Finally, add the new tags.
         self._tags.add(*tags)
-        # … and then add any tags that include those already in this set.
-        supertags = Tag.objects.filter(_inclusions__in=self._tags.all())
-        self._tags.add(*supertags)
+        # Now repeatedly add any tags that include those already in this set,
+        # until we've added all the supertags.
+        last_no_of_tags = 0
+        current_no_of_tags = self._tags.count()
+        while current_no_of_tags > last_no_of_tags:
+            last_no_of_tags = current_no_of_tags
+            supertags = Tag.objects.filter(_inclusions__in=self._tags.all())
+            self._tags.add(*supertags)            
+            current_no_of_tags = self._tags.count()
         # TODO: What should this method return?
 
     def all(self, *args, **kwargs):
