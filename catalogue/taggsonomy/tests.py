@@ -681,3 +681,12 @@ class BasicExclusionTests(TestCase):
             Tag.objects.get(name='Knowledge Management'),
             tagset
         )
+
+    def test_excluding_tags_that_are_already_jointly_present_in_tagset_ERROR(self):
+        tagset = TagSet.objects.get(pk=2)
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        self.assertIn(tagging, tagset)
+        self.assertIn(taggsonomy, tagset)
+        with self.assertRaises(MutualExclusionError):
+            tagging.exclude(taggsonomy)

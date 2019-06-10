@@ -14,7 +14,7 @@
     "fields": {
         "content_type": null,
         "object_id": null,
-        "_tags": [1]
+        "_tags": [6, 8]
     }
 },
 {
@@ -23,12 +23,21 @@
     "fields": {
         "content_type": null,
         "object_id": null,
-        "_tags": [8]
+        "_tags": [1]
     }
 },
 {
     "model": "taggsonomy.tagset",
     "pk": 4,
+    "fields": {
+        "content_type": null,
+        "object_id": null,
+        "_tags": [8]
+    }
+},
+{
+    "model": "taggsonomy.tagset",
+    "pk": 5,
     "fields": {
         "content_type": null,
         "object_id": null,
