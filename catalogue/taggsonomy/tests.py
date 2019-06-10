@@ -660,3 +660,24 @@ class BasicInclusionTests(TestCase):
             self.tagset
         )
         
+
+class BasicExclusionTests(TestCase):
+    """
+    Tests for various exclusion scenarios
+    """
+    fixtures = ['tags.json', 'tagsets.json']
+
+    def setUp(self):
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_tag_excluding_other_tag_to_tagset_removes_other_tag(self):
+        tagset = TagSet.objects.get(pk=1)
+        self.assertIn(
+            Tag.objects.get(name='Knowledge Management'),
+            tagset
+        )
+        tagset.add(Tag.objects.get(name='Programming'))
+        self.assertNotIn(
+            Tag.objects.get(name='Knowledge Management'),
+            tagset
+        )

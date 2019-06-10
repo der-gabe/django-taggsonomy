@@ -1,0 +1,38 @@
+[
+{
+    "model": "taggsonomy.tagset",
+    "pk": 1,
+    "fields": {
+        "content_type": null,
+        "object_id": null,
+        "_tags": [7]
+    }
+},
+{
+    "model": "taggsonomy.tagset",
+    "pk": 2,
+    "fields": {
+        "content_type": null,
+        "object_id": null,
+        "_tags": [1]
+    }
+},
+{
+    "model": "taggsonomy.tagset",
+    "pk": 3,
+    "fields": {
+        "content_type": null,
+        "object_id": null,
+        "_tags": [8]
+    }
+},
+{
+    "model": "taggsonomy.tagset",
+    "pk": 4,
+    "fields": {
+        "content_type": null,
+        "object_id": null,
+        "_tags": [6]
+    }
+}
+]
