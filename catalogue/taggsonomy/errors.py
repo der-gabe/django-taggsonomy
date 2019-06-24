@@ -15,3 +15,6 @@ class SimultaneousInclusionExclusionError(TaggsonomyError):
 
 class CircularInclusionError(TaggsonomyError):
     pass
+
+class CommonSubtagExclusionError(TaggsonomyError):
+    pass

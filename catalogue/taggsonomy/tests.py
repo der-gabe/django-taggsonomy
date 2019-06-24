@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from .errors import (CircularInclusionError, MutualExclusionError,
-                     NoSuchTagError, SelfExclusionError,
+from .errors import (CircularInclusionError, CommonSubtagExclusionError,
+                     MutualExclusionError, NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError)
 from .models import Tag, TagSet
 
@@ -731,3 +731,13 @@ class NewInclusionRelationTests(TestCase):
         self.assertIn(django, tagset)
         self.assertNotIn(python, tagset)
         self.assertNotIn(programming, tagset)
+
+    def test_new_inclusion_disallows_exclusion(self):
+        django = Tag.objects.get(name='Django')
+        programming = Tag.objects.get(name='Programming')
+        web_development = Tag.objects.get(name='Web Development')
+        web_development.include(django)
+        with self.assertRaises(CommonSubtagExclusionError):
+            programming.exclude(web_development)
+        with self.assertRaises(CommonSubtagExclusionError):
+            web_development.exclude(programming)

@@ -14,7 +14,7 @@
 *** DONE fails, as that's a circular inclusion, which is not allowed
 ** Including "Django" under "Web Development"
 *** DONE adds "Web Development" to any TagSet already containing "Django"
-*** TODO disallows exclusion between "Programming" and "Web Devbelopment"
+*** DONE disallows exclusion between "Programming" and "Web Development"
 ** Including "Taggsonomy" under "Tagging"…
 *** TODO adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
 *** TODO fails? if there's already a TagSet containing both "Tagging" and "Programming", or does what, instead?

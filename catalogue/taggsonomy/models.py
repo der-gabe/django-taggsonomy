@@ -2,8 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from .errors import (CircularInclusionError, MutualExclusionError,
-                     NoSuchTagError, SelfExclusionError,
+from .errors import (CircularInclusionError, CommonSubtagExclusionError,
+                     MutualExclusionError, NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError)
 
 
@@ -140,9 +140,10 @@ class Tag(models.Model):
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
             raise SelfExclusionError
-        elif self._inclusions.filter(id=tag_instance.id).exists()\
-             or tag_instance._inclusions.filter(id=self.id).exists():
+        elif self.includes(tag_instance) or tag_instance.includes(self):
             raise SimultaneousInclusionExclusionError
+        elif check_common_subtags(self, tag_instance):
+            raise CommonSubtagExclusionError
         elif any([tag_instance in tagset for tagset in self.tagsets.all()]):
             raise MutualExclusionError
         else:
@@ -155,6 +156,17 @@ class Tag(models.Model):
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         return self._exclusions.filter(id=tag_instance.id).exists()
+
+    def get_all_subtags(self):
+        """
+        Return a TagQuerySet of this tag's subtags
+        and their subtags etc. ad finitum
+        """
+        subtags = self._inclusions.all()
+        all_subtags = Tag.objects.none().union(subtags)
+        for tag in subtags.all():
+            all_subtags = all_subtags.union(tag.get_all_subtags())
+        return all_subtags
 
     def unexclude(self, tag):
         """
@@ -282,3 +294,12 @@ def check_mutually_exclusive_tags(tags):
                 found_exclusion = True
                 break
     return found_exclusion
+
+def check_common_subtags(*tags):
+    """
+    Check whether the given tags have at least one common subtag.
+
+    returns True if that is the case, False otherwise
+    """
+    subtag_sets = set([tag.get_all_subtags() for tag in tags])
+    return Tag.objects.intersection(*subtag_sets).exists()
