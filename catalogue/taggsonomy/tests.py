@@ -691,6 +691,8 @@ class BasicExclusionTests(TestCase):
         self.assertIn(taggsonomy, tagset)
         with self.assertRaises(MutualExclusionError):
             tagging.exclude(taggsonomy)
+        with self.assertRaises(MutualExclusionError):
+            taggsonomy.exclude(tagging)
 
 
 class NewInclusionRelationTests(TestCase):
