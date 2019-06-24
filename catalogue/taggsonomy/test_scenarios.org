@@ -1,36 +1,30 @@
 * Basic inclusion
 ** Single direct inclusion
-- Adding "Tagging" to TagSet also adds "Knowledge Management"
-- Adding "Python" to TagSet also adds "Programming", but NOT "Django"
+*** DONE Adding "Tagging" to TagSet also adds "Knowledge Management"
+*** DONE Adding "Python" to TagSet also adds "Programming", but NOT "Django"
 ** Double direct inclusion
-- Adding "JavaScript" to TagSet also adds "Programming" and "Web Development"
-** Direct and indirect inclusion
-- Adding "Django" to TagSet also adds "Python" and "Programming"
+*** DONE Adding "JavaScript" to TagSet also adds "Programming" and "Web Development"
+** Direct and indirect inclusion*
+*** DONE Adding "Django" to TagSet also adds "Python" and "Programming"
 * Basic exclusion
-- Adding "Programming" to a TagSet previously containing "Knowledge Management"
-  removes "Knowledge Management"
-- Exclusion between "Taggsonomy" and "Tagging" fails if there's already a TagSet
-  containing both tags
+*** DONE Adding "Programming" to a TagSet previously containing "Knowledge Management" removes "Knowledge Management"
+*** DONE Exclusion between "Taggsonomy" and "Tagging" fails if there's already a TagSet containing both tags
 * New inclusion relations
 ** Including "Programming" under "Django"
-- fails, as that's a circular inclusion, which is not allowed
+*** DONE fails, as that's a circular inclusion, which is not allowed
 ** Including "Django" under "Web Development"
--  adds "Web Development" to any TagSet already containing "Django"
--  disallows exclusion between "Programming" and "Web Devbelopment"
+*** TODO adds "Web Development" to any TagSet already containing "Django"
+*** TODO disallows exclusion between "Programming" and "Web Devbelopment"
 ** Including "Taggsonomy" under "Tagging"…
-- adds "Tagging" and "Knowledge Management" to
-  any TagSet already containing "Taggsonomy"
-- fails? if there's already a TagSet containing both "Tagging" and "Programming",
-  or does what, instead?
+*** TODO adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
+*** TODO fails? if there's already a TagSet containing both "Tagging" and "Programming", or does what, instead?
 ** … and under "Python"…
-- fails because "Programming" excludes "Knowledge Management"
+*** TODO fails because "Programming" excludes "Knowledge Management"
 *** … *after* unexcluding "Programming" and "Knowledge Management"
-- succeeds and adds "Python" and "Programming" to
-  any TagSet already containing "Tagging"
-- disallows exclusion between "Programming" and "Knowledge Management"
+**** TODO succeeds and adds "Python" and "Programming" to any TagSet already containing "Tagging"
+**** TODO disallows exclusion between "Programming" and "Knowledge Management"
 ** … and under "Django"…
-- fails because "Programming" excludes "Knowledge Management"
+*** TODO fails because "Programming" excludes "Knowledge Management"
 *** … *after* unexcluding "Programming" and "Knowledge Management"
-- succeeds and adds "Django", "Python" and "Programming" to
-  any TagSet already containing "Tagging"
-- disallows exclusion between "Programming" and "Knowledge Management"
+**** TODO succeeds and adds "Django", "Python" and "Programming" to any TagSet already containing "Tagging"
+**** TODO disallows exclusion between "Programming" and "Knowledge Management"
