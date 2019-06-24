@@ -91,6 +91,16 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    def add_supertags_to_tagset(self, tagset):
+        """
+        Add this tags supertags (and their supertags etc. ad finitum)
+        to the given tagset
+        """
+        supertags = Tag.objects.filter(_inclusions=self)
+        tagset.add(*supertags)
+        for supertag in supertags:
+            supertag.add_supertags_to_tagset(tagset)
+
     def add_tag_to_subtagsets(self, tag):
         """
         Add the given tag (instance, id or name) to any tagset
@@ -233,16 +243,9 @@ class TagSet(models.Model):
                     break
         # Finally, add the new tags.
         self._tags.add(*tags)
-        # Now repeatedly add any tags that include those already in this set,
-        # until we've added all the supertags.
-        last_no_of_tags = 0
-        current_no_of_tags = self._tags.count()
-        while current_no_of_tags > last_no_of_tags:
-            last_no_of_tags = current_no_of_tags
-            supertags = Tag.objects.filter(_inclusions__in=self._tags.all())
-            self._tags.add(*supertags)            
-            current_no_of_tags = self._tags.count()
-        # TODO: What should this method return?
+        # Now add all supertags of the tags we just added
+        for tag in tags:
+            tag.add_supertags_to_tagset(self)
 
     def all(self, *args, **kwargs):
         return self._tags.all(*args, **kwargs)

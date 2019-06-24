@@ -717,3 +717,17 @@ class NewInclusionRelationTests(TestCase):
         self.assertNotIn(web_development, tagset)
         web_development.include(django)
         self.assertIn(web_development, tagset)
+
+    def test_new_inclusion_does_not_add_other_supertags(self):
+        # Get the TagSet that already contains the Tag "Django" (and nothing else)
+        tagset = TagSet.objects.get(pk=3)
+        django = Tag.objects.get(name='Django')
+        python = Tag.objects.get(name='Python')
+        programming = Tag.objects.get(name='Programming')
+        self.assertIn(django, tagset)
+        self.assertNotIn(python, tagset)
+        self.assertNotIn(programming, tagset)
+        Tag.objects.get(name='Web Development').include(django)
+        self.assertIn(django, tagset)
+        self.assertNotIn(python, tagset)
+        self.assertNotIn(programming, tagset)
