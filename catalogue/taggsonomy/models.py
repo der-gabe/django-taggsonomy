@@ -91,6 +91,24 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    def add_tag_to_subtagsets(self, tag):
+        """
+        Add the given tag (instance, id or name) to any tagset
+        containing any subtag of this tag.
+        """
+        for subtag in self._inclusions.all():
+            subtag.add_tag_to_tagsets(tag)
+            subtag.add_tag_to_subtagsets(tag)
+
+    def add_tag_to_tagsets(self, tag):
+        """
+        Add the given tag (instance, id or name) to any tagset already
+        containing this tag.
+        """
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        for tagset in TagSet.objects.filter(_tags__id=self.id):
+            tagset.add(tag_instance)
+
     def exclude(self, tag):
         """
         Add the given tag (instance, id or name) to this tag's exclusion set
@@ -160,6 +178,8 @@ class Tag(models.Model):
         elif tag_instance.includes(self):
             raise CircularInclusionError
         self._inclusions.add(tag_instance)
+        tag_instance.add_tag_to_tagsets(self)
+        tag_instance.add_tag_to_subtagsets(self)
 
     def includes(self, tag):
         """

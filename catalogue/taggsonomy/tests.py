@@ -672,6 +672,8 @@ class BasicExclusionTests(TestCase):
         self.tagset = TagSet.objects.create()
 
     def test_adding_tag_excluding_other_tag_to_tagset_removes_other_tag(self):
+        # Get the TagSet that already contains the Tag "Knowledge Management"
+        # (and nothing else)
         tagset = TagSet.objects.get(pk=1)
         self.assertIn(
             Tag.objects.get(name='Knowledge Management'),
@@ -684,6 +686,7 @@ class BasicExclusionTests(TestCase):
         )
 
     def test_excluding_tags_that_are_already_jointly_present_in_tagset_ERROR(self):
+        # Get the TagSet that already contains the Tags "Tagging" AND "Taggsonomy"
         tagset = TagSet.objects.get(pk=2)
         tagging = Tag.objects.get(name='Tagging')
         taggsonomy = Tag.objects.get(name='Taggsonomy')
@@ -705,3 +708,12 @@ class NewInclusionRelationTests(TestCase):
         with self.assertRaises(CircularInclusionError):
             Tag.objects.get(name='Django')\
                        .include(Tag.objects.get(name='Programming'))
+
+    def test_new_inclusion_adds_supertag_to_tagsets_containing_subtag(self):
+        # Get the TagSet that already contains the Tag "Django" (and nothing else)
+        tagset = TagSet.objects.get(pk=3)
+        django = Tag.objects.get(name='Django')
+        web_development = Tag.objects.get(name='Web Development')
+        self.assertNotIn(web_development, tagset)
+        web_development.include(django)
+        self.assertIn(web_development, tagset)
