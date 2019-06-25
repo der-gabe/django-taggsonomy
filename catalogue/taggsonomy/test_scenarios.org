@@ -16,7 +16,7 @@
 *** DONE adds "Web Development" to any TagSet already containing "Django"
 *** DONE disallows exclusion between "Programming" and "Web Development"
 ** Including "Taggsonomy" under "Tagging"…
-*** TODO adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
+*** DONE adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
 *** TODO fails? if there's already a TagSet containing both "Tagging" and "Programming", or does what, instead?
 ** … and under "Python"…
 *** TODO fails because "Programming" excludes "Knowledge Management"

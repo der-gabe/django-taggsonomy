@@ -718,6 +718,18 @@ class NewInclusionRelationTests(TestCase):
         web_development.include(django)
         self.assertIn(web_development, tagset)
 
+    def test_new_inclusion_adds_all_supertags(self):
+        # Get the TagSet that already contains the Tag "Taggsonomy"
+        tagset = TagSet.objects.get(pk=4)
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        knowledge_management = Tag.objects.get(name='Knowledge Management')
+        self.assertNotIn(tagging, tagset)
+        self.assertNotIn(knowledge_management, tagset)
+        tagging.include(taggsonomy)
+        self.assertIn(tagging, tagset)
+        self.assertIn(knowledge_management, tagset)
+
     def test_new_inclusion_does_not_add_other_supertags(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
