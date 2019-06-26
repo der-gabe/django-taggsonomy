@@ -4,7 +4,8 @@ from django.db import models
 
 from .errors import (CircularInclusionError, CommonSubtagExclusionError,
                      MutualExclusionError, NoSuchTagError, SelfExclusionError,
-                     SimultaneousInclusionExclusionError)
+                     SimultaneousInclusionExclusionError,
+                     SupertagAdditionWouldRemoveExcludedError)
 
 
 class TagManager(models.Manager):
@@ -168,6 +169,17 @@ class Tag(models.Model):
             all_subtags = all_subtags.union(tag.get_all_subtags())
         return all_subtags
 
+    def get_all_supertags(self):
+        """
+        Return a TagQuerySet of this tag's supertags
+        and their supertags etc. ad finitum
+        """
+        supertags = Tag.objects.filter(_inclusions=self)
+        all_supertags = Tag.objects.none().union(supertags)
+        for tag in supertags.all():
+            all_supertags = all_supertags.union(tag.get_all_supertags())
+        return all_supertags
+
     def unexclude(self, tag):
         """
         Remove the given tag (instance, id or name) from this tag's exclusion
@@ -204,6 +216,34 @@ class Tag(models.Model):
             raise SimultaneousInclusionExclusionError
         elif tag_instance.includes(self):
             raise CircularInclusionError
+        elif update_tagsets:
+            # We're required to update all tag sets containing the newly included
+            # subtag by adding this (new super)tag and all of its respective
+            # supertags, but doing so might lead to the silent removal of other
+            # tags from those tag sets, due to exclusion, which must not be
+            # allowed to happen.
+            # Check whether this tag and all its supertags together exclude any
+            # tag in any tag set containing the newly included subtag and throw
+            # an exception, if so.
+            # 1. Get a set of all supertags (of `self`) and add `self` to it.
+            # 2. Get a set of all the tags that are excluded by the above set.
+            # 3. Get a set of all tag sets containing the newly included (sub)tag.
+            # 4. Get a set of all tags contained in any of the above tag sets.
+            # 5. Check if there's any overlap (intersection) between the sets
+            #    from 2. and 4. - if there is, raise an error.
+            self_set =  Tag.objects.filter(pk=self.pk)
+            tags_to_add = self_set.union(self.get_all_supertags())
+            tags_excluded_by_tags_to_add = Tag.objects.none()
+            for tag_to_add in tags_to_add:
+                tags_excluded_by_tags_to_add |= tag_to_add._exclusions.all()
+            subtag_tagsets = TagSet.objects.filter(_tags=tag_instance)
+            tags_in_subtag_tagsets = Tag.objects.filter(
+                tagsets__in=subtag_tagsets
+            )
+            if tags_in_subtag_tagsets.intersection(
+                    tags_excluded_by_tags_to_add
+            ).exists():
+                raise SupertagAdditionWouldRemoveExcludedError
         self._inclusions.add(tag_instance)
         if update_tagsets:
             tag_instance.add_tag_to_tagsets(self)

@@ -2,7 +2,8 @@ from django.test import TestCase
 
 from .errors import (CircularInclusionError, CommonSubtagExclusionError,
                      MutualExclusionError, NoSuchTagError, SelfExclusionError,
-                     SimultaneousInclusionExclusionError)
+                     SimultaneousInclusionExclusionError,
+                     SupertagAdditionWouldRemoveExcludedError)
 from .models import Tag, TagSet
 
 
@@ -771,3 +772,24 @@ class NewInclusionRelationTests(TestCase):
             programming.exclude(web_development)
         with self.assertRaises(CommonSubtagExclusionError):
             web_development.exclude(programming)
+
+    def test_new_inclusion_does_not_touch_tagsets_without_update_enabled(self):
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
+        tagset = TagSet.objects.create()
+        tagset.add(taggsonomy, programming)
+        tagging.include(taggsonomy)
+        self.assertIn(programming, tagset)
+        self.assertNotIn(tagging, tagset)
+
+    def test_new_inclusion_which_would_lead_to_addition_of_excluded_tag_ERROR(self):
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
+        tagset = TagSet.objects.create()
+        tagset.add(taggsonomy, programming)
+        with self.assertRaises(SupertagAdditionWouldRemoveExcludedError):
+            Tag.objects.get(name='Tagging').include(taggsonomy, update_tagsets=True)
+        self.assertIn(programming, tagset)

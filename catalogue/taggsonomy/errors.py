@@ -18,3 +18,6 @@ class CircularInclusionError(TaggsonomyError):
 
 class CommonSubtagExclusionError(TaggsonomyError):
     pass
+
+class SupertagAdditionWouldRemoveExcludedError(TaggsonomyError):
+    pass

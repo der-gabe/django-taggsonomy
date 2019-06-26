@@ -18,10 +18,10 @@
 ** Including "Taggsonomy" under "Tagging"…
 *** *without* 'update_tagsets' (default)
 **** DONE does not add any other tags to a TagSet already containing "Taggsonomy"
-**** TODO succeeds, even if there's already a TagSet containing both "Taggsonomy" and "Programming", but it does not touch those TagSets
+**** DONE succeeds, even if there's already a TagSet containing both "Taggsonomy" and "Programming", but it does not touch those TagSets
 *** *with* 'update_tagsets'
 **** DONE adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
-**** TODO fails, if there's already a TagSet containing both "Taggsonomy" and "Programming"
+**** DONE fails, if there's already a TagSet containing both "Taggsonomy" and "Programming"
 The alternative would be to silently remove the tag "Programming" when "Knowledge Management" gets added, which might not be what users would expect.
 ** … and under "Python"…
 *** TODO fails because "Programming" excludes "Knowledge Management"
