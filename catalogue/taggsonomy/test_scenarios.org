@@ -16,8 +16,13 @@
 *** DONE adds "Web Development" to any TagSet already containing "Django"
 *** DONE disallows exclusion between "Programming" and "Web Development"
 ** Including "Taggsonomy" under "Tagging"…
-*** DONE adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
-*** TODO fails? if there's already a TagSet containing both "Tagging" and "Programming", or does what, instead?
+*** *without* 'update_tagsets' (default)
+**** DONE does not add any other tags to a TagSet already containing "Taggsonomy"
+**** TODO succeeds, even if there's already a TagSet containing both "Taggsonomy" and "Programming", but it does not touch those TagSets
+*** *with* 'update_tagsets'
+**** DONE adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
+**** TODO fails, if there's already a TagSet containing both "Taggsonomy" and "Programming"
+The alternative would be to silently remove the tag "Programming" when "Knowledge Management" gets added, which might not be what users would expect.
 ** … and under "Python"…
 *** TODO fails because "Programming" excludes "Knowledge Management"
 *** … *after* unexcluding "Programming" and "Knowledge Management"

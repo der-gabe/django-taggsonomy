@@ -176,7 +176,7 @@ class Tag(models.Model):
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         self._exclusions.remove(tag_instance)
 
-    def include(self, tag):
+    def include(self, tag, update_tagsets=False):
         """
         Add the given tag (instance, id or name) to this tag's inclusion set,
         i.e. make the given tag a subtag of this one and make this tag a
@@ -190,7 +190,12 @@ class Tag(models.Model):
         Attempts to do this will raise a SimultaneousInclusionExclusionError.
 
         A chain of inclusions starting from one tag may not loop around back to
-        the same tag. Attempts to achieve this will raise a 
+        the same tag. Attempts to achieve this will raise a
+        CircularInclusionError.
+
+        If `update_tagsets` is True, the included tag's new supertag (this one)
+        and all of its supertags will be added to any tag set already containing
+        the included tag.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
@@ -200,8 +205,9 @@ class Tag(models.Model):
         elif tag_instance.includes(self):
             raise CircularInclusionError
         self._inclusions.add(tag_instance)
-        tag_instance.add_tag_to_tagsets(self)
-        tag_instance.add_tag_to_subtagsets(self)
+        if update_tagsets:
+            tag_instance.add_tag_to_tagsets(self)
+            tag_instance.add_tag_to_subtagsets(self)
 
     def includes(self, tag):
         """

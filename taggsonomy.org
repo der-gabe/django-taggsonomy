@@ -7,23 +7,18 @@ Taggsonomy
 * Nomenclature
 ** Tags vs. labels :private_v_global_tags:
 … maybe for the distinction between global and private tags?
-* Advanced features
-** Private vs. global tags
-There should be a difference in graphical representation, i.e. a small globe icon at the left of the tag name for global tags and a little lock or person icon for private tags.
-*** Global tags
-globally unique (per system)
-*** Private tags
-only unique per user, duplicates (by name) can exist, but are of course completely separate objects
-*** Group tags? :private_v_global_tags:
-** Tag relations
-*** Exclusions (mutually exclusive tags)                                :MVP:
+** Tag sets
+A taggable object has a one-to-one relation to a tag set object, which is said to "contain" tags (i.e. it has a many-to-many relation to tag objects).
+A tag set can also implement some logic (e.g. removing tags excluded by newly added tags, cf. Exclusions), so it's a useful abstraction in that sense, too.
+* Tag relations
+** Exclusions (mutually exclusive tags)                                 :MVP:
 :PROPERTIES:
 :Milestone: 0
 :END:
 "A excludes B"
 - Note that "A excludes B" implicitely also means "B excludes A", but the code should make this explicit.
 - In this situation, adding tag "B" to an object that already has tag "A" will silently remove tag "A".
-*** Inclusions (Subtags and Supertags)                                  :MVP:
+** Inclusions (Subtags and Supertags)                                   :MVP:
 :PROPERTIES:
 :Milestone: 0
 :END:
@@ -32,7 +27,7 @@ In fact, a user might want to automate this in some way. That's what inclusions 
 Practically, this means that if "Python" is included by "Programming" then adding the tag "Python" to any tag set will automatically also add "Programming" to it.
 We call "Programming" a *supertag* of "Python" and "Python" a *subtag* of "Programming".
 Each tag can be a supertag, subtag, none or both.
-**** Renaming this feature
+*** Renaming this feature
 Originally, I implemented this such that the subtag "included" the supertag, i.e. you would call `subtag.include(supertag)`.
 From an implementation standpoint this seemed to make sense, since adding the subtag to a tag set also "pulls in" (thus, "includes") the supertag.
 
@@ -45,18 +40,26 @@ supertag = Tag('Programming')
 subtag = Tag('Python')
 ```
 I should then call `supertag.include(subtag)`, `supertag.includes(subtag)` shoudl return `True` and adding `subtag` ("Python") to a tag set should also add `supertag` ("Programming") to it.
-**** Subtags with mutually exclusive supertags
-… are a problem.
-**** Inclusion by tag groups                                     :tag_groups:
+*** Circular inclusions should not be allowed
+… as they would lead to all kinds of problems (inclusion graph not directed anymore) and has no conceivable benefit for the user (all tags in a closed inclusion circle are functionally identical)
+*** Tags with mutually exclusive supertags
+… are a problem and should not be allowed, because when adding such a tag to a tag set, it is unclear which of the mutually exclusive supertags to "pull in".
+*** Should inclusion of a (new sub)tag automatically add the new supertag and its supertags to all tag sets already containing the subtag?
+In other, more concrete, words: Say I already have a tag "Python" and a bunch of objects tagged with it and now I decide to create a new tag "Programming" and make it a supertag of "Python", should all objects tagged with "Python" automatically get tagged with "Programming"?
+If so, there is one problem: What if any of those tagged objects is tagged with some tag that's excluded by one of the supertags to be added? Let's say, for example, that there's a tag named "Management" that's mutually exclusive with "Programming" and that an object exists that is tagged with both "Python" and "Management", a perfectly valid situation.
+Left unchecked, the base behaviour would be to silently remove the old tag "Management" the moment the new supertag that excludes it ("Programming") gets added. This would come as a surprise to a user who might not expect or predict this behaviour and it also constitutes a loss of information, as the object can no longer be found under "Management". Thus it's unacceptable.
+I would say that updating tagged objects in this way should be user configurable and off by default.
+So there should be an option like "update tagged objects", or similar, and it should default to "No".
+Furthermore, if the option *is* selected, it should be checked whether adding the new supertags /would/ remove an existing tag from a tag set, due to exclusion, and the operation should fail if that's the case.
+We might think about including a /second/ option like "silently remove excluded tags", or similar, only to be shown when the first option is selected, which would allow the operation to go through.
+*** Inclusion by tag groups                                      :tag_groups:
 :PROPERTIES:
 :Milestone: 1
 :END:
 If a subtag is included by a group tag, then when the subtag is added to a tag set, it "pulls in" all the tags in the group.
 Except if the tag group consists of mutually exclusive tags, then it becomes harder to figure out which one of the tags in the group to add.
 Basically, we cannot decide this automatically in this case and need help from the user.
-**** Circular inclusions should not be allowed
-… as they would lead to all kinds of problems (inclusion graph not directed anymore) and has no conceivable benefit for the user (all tags in a closed inclusion circle are functionally identical)
-*** Ordering :MVP:
+** Ordering                                                             :MVP:
 :PROPERTIES:
 :Milestone: 0
 :END:
@@ -64,10 +67,18 @@ Basically, we cannot decide this automatically in this case and need help from t
 - Only meaningful for mutually exclusive tags.
 - Allows sorting by related tags
 - Difficult to maintain consistent ordering without tag groups, since each tag could only give its own ordering relation to other tags. Overall, ambiguous or nonsensical orderings (e.g. loops) may emerge.
-*** Tag transition rules :transition_rules:
+** Tag transition rules                                    :transition_rules:
 "If tagged with A, cannot tag with B"
 - only meaningful with mutually exclusive tags.
 - Similar consistency considerations as for tag ordering apply
+* Advanced features
+** Private vs. global tags
+There should be a difference in graphical representation, i.e. a small globe icon at the left of the tag name for global tags and a little lock or person icon for private tags.
+*** Global tags
+globally unique (per system)
+*** Private tags
+only unique per user, duplicates (by name) can exist, but are of course completely separate objects
+*** Group tags? :private_v_global_tags:
 ** Tag-based visibility / access control?
 E.g. only objects with global/admin level tag "X", "user:X" or "group:x" are visible to user(s in group) "X"
 ** Tags for structured meta-data? :structured_metadata_tags:
@@ -116,6 +127,8 @@ Once column for the tag value.
 *** could also be done based on other tag transitions
 e.g. when the final episode in a season of a TV show is added, all the episodes in that season get the additional tag "complete season".
 ** Multilingual tags :i18n:
+It should be possible to store tag names in different languages.
+The different translations of a tag should be treated as the same tag, so a user should be shown only one tag, but in their desired language.
 ** Hookability
 It should be possible to "hook" tag transitions, e.g. by registering callback functions or similar, so that a tag tansition may lead to system-specific actions.
 ** Logging
@@ -129,6 +142,10 @@ could be implemented as extra attribute on the ManyToMany relation
 ** Timestamps
 *** Tag addition to or removal from object
 could be implemented as extra attribute on the ManyToMany relation
+** Tag synonyms
+(cf. meta.stackexchange.com/tags/synonyms)
+Useful in a large and/or evolving tag base. Mainly useful for search, I suppose.
+Somewhat related to Multilingual tags, but the difference is that mutlilingual tags are different versions of the same tag, whereas tag synonyms are different tags that are treated as synonyms.
 * Navigation
 ** UI elements
 *** Tag cloud
