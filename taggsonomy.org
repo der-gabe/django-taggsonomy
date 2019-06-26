@@ -72,6 +72,14 @@ Basically, we cannot decide this automatically in this case and need help from t
 - only meaningful with mutually exclusive tags.
 - Similar consistency considerations as for tag ordering apply
 * Advanced features
+** Tag groups                                                    :tag_groups:
+:PROPERTIES:
+:Milestone: 1
+:END:
+Allow mutually exclusive tags with consistent ordering and consistent transition rules.
+- Basically implement all of the individual tag features in a convenient package.
+- Maybe make implementation transparent:
+  - New tag without any relations forms its own tag group "behind the scenes", when relations are added the group becomes explicit.
 ** Private vs. global tags
 There should be a difference in graphical representation, i.e. a small globe icon at the left of the tag name for global tags and a little lock or person icon for private tags.
 *** Global tags
@@ -170,14 +178,6 @@ List of tags that can be pulled open from the side and contains a simple list of
 E.g. The question "How many seasons of The Big Bang Theory are there (in the system)?" translates to "How many tags of class/form "season: …" are there, which are used together with the tag "the big bang theory"?
 The question "Is Season X of The Big Bang Theory complete?" is more complicated, but it's solvable in several ways. Either by filtering by show title and season number and comparing the number of results with the highest episode number, or by having tags for "first episode in season", "following episode: <object>", (optionally "preceding episode: <other object>") and "last episode in season" and by checking whether the chain of following episodes is unbroken.
 ** Tag set theory with Venn diagrams
-* Tag groups :tag_groups:
-:PROPERTIES:
-:Milestone: 1
-:END:
-Allow mutually exclusive tags with consistent ordering and consistent transition rules.
-- Basically implement all of the individual tag features in a convenient package.
-- Maybe make implementation transparent:
-  - New tag without any relations forms its own tag group "behind the scenes", when relations are added the group becomes explicit.
 * Implementations
 ** Django app
 *** How to separate Django app and (possible) Python library? :python_taggsonomy:
@@ -239,8 +239,11 @@ What about directionality?
 Maintain independently of Django app?
 ** Python library(?) :python_taggsonomy:
 Pure Python, no Django ORM, therefore no assumption about persistence possible and object relations need to be handled Pythonically.
-
-Is this even a good idea?
+*** Everything is done in memory
+Potentially very fast. Could be used by the Django app via aggregation, just need to make sure to update in-memory objects and DB atomically to avoid inconsistent states.
+*** No state, essentially just mixin classes
+Relies on certain state-exposing methods/attributes/properties to be present.
+Would need to come up with a good, clean API that separates the two layers of functionality...
 ** Bookmarks (Browser extension) :bookmark_taggsonomy:
 Written in JavaScript, HTML & CSS
 Should target Firefox, Chromium & WebKit
