@@ -26,7 +26,7 @@ The alternative would be to silently remove the tag "Programming" when "Knowledg
 ** … and under "Python"…
 *** DONE fails because "Programming" excludes "Knowledge Management"
 *** … *after* unexcluding "Programming" and "Knowledge Management"
-**** TODO succeeds and adds "Python" and "Programming" to any TagSet already containing "Tagging"
+**** DONE succeeds and adds "Python" and "Programming" to any TagSet already containing "Tagging"
 **** TODO disallows exclusion between "Programming" and "Knowledge Management"
 ** … and under "Django"…
 *** TODO fails because "Programming" excludes "Knowledge Management"
