@@ -1,7 +1,8 @@
 from django.test import TestCase
 
 from .errors import (CircularInclusionError, CommonSubtagExclusionError,
-                     MutualExclusionError, NoSuchTagError, SelfExclusionError,
+                     MutualExclusionError, MutuallyExclusiveSupertagsError,
+                     NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError,
                      SupertagAdditionWouldRemoveExcludedError)
 from .models import Tag, TagSet
@@ -793,3 +794,8 @@ class NewInclusionRelationTests(TestCase):
         with self.assertRaises(SupertagAdditionWouldRemoveExcludedError):
             Tag.objects.get(name='Tagging').include(taggsonomy, update_tagsets=True)
         self.assertIn(programming, tagset)
+
+    def test_new_inclusion_fails_for_mutually_exclusive_supertags(self):
+        Tag.objects.get(name='Tagging').include(Tag.objects.get(name='Taggsonomy'))
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            Tag.objects.get(name='Python').include(Tag.objects.get(name='Taggsonomy'))

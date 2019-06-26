@@ -3,7 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from .errors import (CircularInclusionError, CommonSubtagExclusionError,
-                     MutualExclusionError, NoSuchTagError, SelfExclusionError,
+                     MutualExclusionError, MutuallyExclusiveSupertagsError,
+                     NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError,
                      SupertagAdditionWouldRemoveExcludedError)
 
@@ -152,7 +153,7 @@ class Tag(models.Model):
 
     def excludes(self, tag):
         """
-        Return True if this tag (instance, id or name) excludes the given tag,
+        Return True if this tag excludes the given tag (instance, id or name),
         otherwise False.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
@@ -179,6 +180,17 @@ class Tag(models.Model):
         for tag in supertags.all():
             all_supertags = all_supertags.union(tag.get_all_supertags())
         return all_supertags
+
+    def has_mutually_exclusive_supertags_with(self, tag):
+        """
+        Return True if this tag and the given tag (instance, id or name)
+        have mutually exclusive supertags, otherwise False.
+        """
+        tag_instance = Tag.objects.get_tag_from_argument(tag)
+        combined_supertags = self.get_all_supertags().union(
+            tag_instance.get_all_supertags()
+        )
+        return check_mutually_exclusive_tags(set(combined_supertags))
 
     def unexclude(self, tag):
         """
@@ -216,6 +228,8 @@ class Tag(models.Model):
             raise SimultaneousInclusionExclusionError
         elif tag_instance.includes(self):
             raise CircularInclusionError
+        elif self.has_mutually_exclusive_supertags_with(tag_instance):
+            raise MutuallyExclusiveSupertagsError
         elif update_tagsets:
             # We're required to update all tag sets containing the newly included
             # subtag by adding this (new super)tag and all of its respective
@@ -251,7 +265,7 @@ class Tag(models.Model):
 
     def includes(self, tag):
         """
-        Return True if this tag (instance, id or name) includes the given tag,
+        Return True if this tag includes the given tag (instance, id or name),
         either directly or indirectly, otherwise False.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)

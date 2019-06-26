@@ -21,3 +21,6 @@ class CommonSubtagExclusionError(TaggsonomyError):
 
 class SupertagAdditionWouldRemoveExcludedError(TaggsonomyError):
     pass
+
+class MutuallyExclusiveSupertagsError(TaggsonomyError):
+    pass
