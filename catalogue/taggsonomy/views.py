@@ -1,7 +1,17 @@
-from django.urls import NoReverseMatch
 from django.shortcuts import redirect
+from django.urls import NoReverseMatch, reverse_lazy
+from django.views import generic
 
 from .models import Tag, TagSet
+
+
+class TagDetailView(generic.DetailView):
+    fields = {'name'}
+    model = Tag
+
+
+class TagListView(generic.ListView):
+    model = Tag
 
 
 def add_tags(request, tagset_id):
