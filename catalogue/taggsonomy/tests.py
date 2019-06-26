@@ -805,16 +805,30 @@ class NewInclusionRelationTests(TestCase):
         with self.assertRaises(MutuallyExclusiveSupertagsError):
             Tag.objects.get(name='Python').include(taggsonomy)
 
-    def test_new_inclusion_succeeds_after_unexcluding(self):
+    def test_new_inclusion_succeeds_after_unexcluding_supertags(self):
         python = Tag.objects.get(name='Python')
         tagging = Tag.objects.get(name='Tagging')
         taggsonomy = Tag.objects.get(name='Taggsonomy')
         programming = Tag.objects.get(name='Programming')
         knowledge_management = Tag.objects.get(name='Knowledge Management')
         tagging.include(taggsonomy)
-        self.assertTrue(tagging.includes(taggsonomy))
-        self.assertTrue(knowledge_management.includes(taggsonomy))
         programming.unexclude(knowledge_management)
         python.include(taggsonomy)
         self.assertTrue(python.includes(taggsonomy))
+        self.assertTrue(tagging.includes(taggsonomy))
         self.assertTrue(programming.includes(taggsonomy))
+        self.assertTrue(knowledge_management.includes(taggsonomy))
+
+    def test_new_inclusion_disallows_excluding_supertags_ERROR(self):
+        python = Tag.objects.get(name='Python')
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        knowledge_management = Tag.objects.get(name='Knowledge Management')
+        tagging.include(taggsonomy)
+        programming.unexclude(knowledge_management)
+        python.include(taggsonomy)
+        with self.assertRaises(CommonSubtagExclusionError):
+            programming.exclude(knowledge_management)
+        with self.assertRaises(CommonSubtagExclusionError):
+            knowledge_management.exclude(programming)
