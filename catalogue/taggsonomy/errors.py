@@ -9,3 +9,18 @@ class NoSuchTagError(TaggsonomyError):
 
 class SelfExclusionError(TaggsonomyError):
     pass
+
+class SimultaneousInclusionExclusionError(TaggsonomyError):
+    pass
+
+class CircularInclusionError(TaggsonomyError):
+    pass
+
+class CommonSubtagExclusionError(TaggsonomyError):
+    pass
+
+class SupertagAdditionWouldRemoveExcludedError(TaggsonomyError):
+    pass
+
+class MutuallyExclusiveSupertagsError(TaggsonomyError):
+    pass

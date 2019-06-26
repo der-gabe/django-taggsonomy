@@ -1,6 +1,10 @@
 from django.test import TestCase
 
-from .errors import MutualExclusionError, NoSuchTagError, SelfExclusionError
+from .errors import (CircularInclusionError, CommonSubtagExclusionError,
+                     MutualExclusionError, MutuallyExclusiveSupertagsError,
+                     NoSuchTagError, SelfExclusionError,
+                     SimultaneousInclusionExclusionError,
+                     SupertagAdditionWouldRemoveExcludedError)
 from .models import Tag, TagSet
 
 
@@ -320,6 +324,16 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertFalse(self.tag0._exclusions.filter(id=self.tag1.id).exists())
         self.assertFalse(self.tag1._exclusions.filter(id=self.tag0.id).exists())
 
+    def test_exclude_included_tag_ERROR(self):
+        """
+        A tag cannot simultaneously include and exclude another.
+        """
+        self.tag1._inclusions.add(self.tag2)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.tag1.exclude(self.tag2)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.tag2.exclude(self.tag1)
+
 
 class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
     """
@@ -486,3 +500,337 @@ class TagSetRemoveTests(TestCase):
         self.assertNotIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
+
+
+class InclusionSetupMixin(object):
+    """
+    Mixin to provide common setUp method for inclusion test cases
+    """
+
+    def setUp(self):
+        self.supertag = Tag.objects.create(name='Programming')
+        self.subtag0 = Tag.objects.create(name='Python')
+        self.subtag1 = Tag.objects.create(name='JavaScript')
+        self.supertag._inclusions.add(self.subtag0)
+
+
+class TagInclusionTests(InclusionSetupMixin, TestCase):
+    """
+    Test for Tag model's inclusion mechanism
+    """
+
+    def test_inclusion_relation(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEquals(self.subtag0._inclusions.count(), 0)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag0.id).exists())
+        self.assertFalse(self.subtag0._inclusions.filter(id=self.supertag.id).exists())
+
+    def test_include_method_with_tag_id(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.supertag.include(self.subtag1.id)
+        self.assertEquals(self.supertag._inclusions.count(), 2)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
+
+    def test_include_method_with_tag_instance(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.supertag.include(self.subtag1)
+        self.assertEquals(self.supertag._inclusions.count(), 2)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
+
+    def test_include_method_with_tag_name(self):
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.supertag.include(self.subtag1.name)
+        self.assertEquals(self.supertag._inclusions.count(), 2)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
+
+    def test_self_inclusion_does_nothing(self):
+        """
+        A tag including itself, while not an error, is rather meaningless.
+
+        Attempting to do that should just have no effect at all.
+        """
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.subtag1.include(self.subtag1)
+        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertFalse(self.subtag1._inclusions.filter(id=self.subtag1.id).exists())
+
+    def test_include_excluded_tag_ERROR(self):
+        """
+        A tag cannot simultaneously include and exclude another.
+        """
+        self.subtag0.exclude(self.subtag1)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.subtag0.include(self.subtag1)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.subtag1.include(self.subtag0)
+
+    def test_includes_method_with_tag_ids(self):
+        self.assertTrue(self.supertag.includes(self.subtag0.id))
+        self.assertFalse(self.supertag.includes(self.subtag1.id))
+        self.assertFalse(self.subtag0.includes(self.supertag.id))
+        self.assertFalse(self.subtag1.includes(self.supertag.id))
+
+    def test_includes_method_with_tag_instances(self):
+        self.assertTrue(self.supertag.includes(self.subtag0))
+        self.assertFalse(self.supertag.includes(self.subtag1))
+        self.assertFalse(self.subtag0.includes(self.supertag))
+        self.assertFalse(self.subtag1.includes(self.supertag))
+
+    def test_includes_method_with_tag_names(self):
+        self.assertTrue(self.supertag.includes(self.subtag0.name))
+        self.assertFalse(self.supertag.includes(self.subtag1.name))
+        self.assertFalse(self.subtag0.includes(self.supertag.name))
+        self.assertFalse(self.subtag1.includes(self.supertag.name))
+
+    # TODO: Test that letting tag A include tag B adds tag B to any tag set that A is already a part of.
+    # TODO: Test that a tag may not simultaneously include mutually exclusive tags.
+    # TODO: Test that circular inclusions are not allowed
+
+
+class TagSetInclusionTests(InclusionSetupMixin, TestCase):
+    """
+    Tests for TagSet model's handling of tag inclusions
+    """
+
+    def setUp(self):
+        super(TagSetInclusionTests, self).setUp()
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_tag_that_is_included_by_other_tag_adds_both(self):
+        self.assertEquals(self.tagset.count(), 0)
+        self.tagset.add(self.subtag0)
+        self.assertTrue(self.subtag0 in self.tagset)
+        self.assertEquals(self.tagset.count(), 2)
+        self.assertTrue(self.supertag in self.tagset)
+
+
+class BasicInclusionTests(TestCase):
+    """
+    Tests for various inclusion scenarios
+    """
+    fixtures = ['tags.json']
+
+    def setUp(self):
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_tag_with_subtag_to_tagset_also_adds_subtag(self):
+        self.tagset.add(Tag.objects.get(name='Tagging'))
+        self.assertIn(
+            Tag.objects.get(name='Knowledge Management'),
+            self.tagset
+        )
+
+    def test_adding_tag_with_sub_and_supertag_to_tagset_adds_subtag_not_supertag(self):
+        self.tagset.add(Tag.objects.get(name='Python'))
+        self.assertIn(
+            Tag.objects.get(name='Programming'),
+            self.tagset
+        )
+        self.assertNotIn(
+            Tag.objects.get(name='Django'),
+            self.tagset
+        )
+        
+    def test_adding_tag_with_two_subtags_to_tagset_adds_both_subtags(self):
+        self.tagset.add(Tag.objects.get(name='JavaScript'))
+        self.assertIn(
+            Tag.objects.get(name='Programming'),
+            self.tagset
+        )
+        self.assertIn(
+            Tag.objects.get(name='Web Development'),
+            self.tagset
+        )
+
+    def test_adding_tag_subsubtag_to_tagset_adds_subtag_and_subsubtag(self):
+        self.tagset.add(Tag.objects.get(name='Django'))
+        self.assertIn(
+            Tag.objects.get(name='Python'),
+            self.tagset
+        )
+        self.assertIn(
+            Tag.objects.get(name='Programming'),
+            self.tagset
+        )
+        
+
+class BasicExclusionTests(TestCase):
+    """
+    Tests for various exclusion scenarios
+    """
+    fixtures = ['tags.json', 'tagsets.json']
+
+    def setUp(self):
+        self.tagset = TagSet.objects.create()
+
+    def test_adding_tag_excluding_other_tag_to_tagset_removes_other_tag(self):
+        # Get the TagSet that already contains the Tag "Knowledge Management"
+        # (and nothing else)
+        tagset = TagSet.objects.get(pk=1)
+        self.assertIn(
+            Tag.objects.get(name='Knowledge Management'),
+            tagset
+        )
+        tagset.add(Tag.objects.get(name='Programming'))
+        self.assertNotIn(
+            Tag.objects.get(name='Knowledge Management'),
+            tagset
+        )
+
+    def test_excluding_tags_that_are_already_jointly_present_in_tagset_ERROR(self):
+        # Get the TagSet that already contains the Tags "Tagging" AND "Taggsonomy"
+        tagset = TagSet.objects.get(pk=2)
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        self.assertIn(tagging, tagset)
+        self.assertIn(taggsonomy, tagset)
+        with self.assertRaises(MutualExclusionError):
+            tagging.exclude(taggsonomy)
+        with self.assertRaises(MutualExclusionError):
+            taggsonomy.exclude(tagging)
+
+
+class NewInclusionRelationTests(TestCase):
+    """
+    Tests for various scenarios involving the adding of new inclusion relations
+    """
+    fixtures = ['tags.json', 'tagsets.json']
+
+    def test_circular_inclusion_ERROR(self):
+        with self.assertRaises(CircularInclusionError):
+            Tag.objects.get(name='Django')\
+                       .include(Tag.objects.get(name='Programming'))
+
+    def test_new_inclusion_does_not_add_supertag_by_default(self):
+        # Get the TagSet that already contains the Tag "Django" (and nothing else)
+        tagset = TagSet.objects.get(pk=3)
+        django = Tag.objects.get(name='Django')
+        web_development = Tag.objects.get(name='Web Development')
+        self.assertNotIn(web_development, tagset)
+        web_development.include(django)
+        self.assertNotIn(web_development, tagset)
+
+    def test_new_inclusion_does_not_add_supertag_when_update_disabled(self):
+        # Get the TagSet that already contains the Tag "Django" (and nothing else)
+        tagset = TagSet.objects.get(pk=3)
+        django = Tag.objects.get(name='Django')
+        web_development = Tag.objects.get(name='Web Development')
+        self.assertNotIn(web_development, tagset)
+        web_development.include(django, update_tagsets=False)
+        self.assertNotIn(web_development, tagset)
+
+    def test_new_inclusion_adds_supertag_when_update_enabled(self):
+        # Get the TagSet that already contains the Tag "Django" (and nothing else)
+        tagset = TagSet.objects.get(pk=3)
+        django = Tag.objects.get(name='Django')
+        web_development = Tag.objects.get(name='Web Development')
+        self.assertNotIn(web_development, tagset)
+        web_development.include(django, update_tagsets=True)
+        self.assertIn(web_development, tagset)
+
+    def test_new_inclusion_adds_all_supertags_when_update_enabled(self):
+        # Get the TagSet that already contains the Tag "Taggsonomy"
+        tagset = TagSet.objects.get(pk=4)
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        knowledge_management = Tag.objects.get(name='Knowledge Management')
+        self.assertNotIn(tagging, tagset)
+        self.assertNotIn(knowledge_management, tagset)
+        tagging.include(taggsonomy, update_tagsets=True)
+        self.assertIn(tagging, tagset)
+        self.assertIn(knowledge_management, tagset)
+
+    def test_new_inclusion_does_not_add_unrelated_supertags_when_update_enabled(self):
+        # Get the TagSet that already contains the Tag "Django" (and nothing else)
+        tagset = TagSet.objects.get(pk=3)
+        django = Tag.objects.get(name='Django')
+        python = Tag.objects.get(name='Python')
+        programming = Tag.objects.get(name='Programming')
+        self.assertIn(django, tagset)
+        self.assertNotIn(python, tagset)
+        self.assertNotIn(programming, tagset)
+        Tag.objects.get(name='Web Development').include(django, update_tagsets=True)
+        self.assertIn(django, tagset)
+        self.assertNotIn(python, tagset)
+        self.assertNotIn(programming, tagset)
+
+    def test_new_inclusion_disallows_exclusion(self):
+        django = Tag.objects.get(name='Django')
+        programming = Tag.objects.get(name='Programming')
+        web_development = Tag.objects.get(name='Web Development')
+        web_development.include(django)
+        with self.assertRaises(CommonSubtagExclusionError):
+            programming.exclude(web_development)
+        with self.assertRaises(CommonSubtagExclusionError):
+            web_development.exclude(programming)
+
+    def test_new_inclusion_does_not_touch_tagsets_without_update_enabled(self):
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
+        tagset = TagSet.objects.create()
+        tagset.add(taggsonomy, programming)
+        tagging.include(taggsonomy)
+        self.assertIn(programming, tagset)
+        self.assertNotIn(tagging, tagset)
+
+    def test_new_inclusion_which_would_lead_to_silent_removal_of_tags_ERROR(self):
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
+        tagset = TagSet.objects.create()
+        tagset.add(taggsonomy, programming)
+        with self.assertRaises(SupertagAdditionWouldRemoveExcludedError):
+            Tag.objects.get(name='Tagging').include(taggsonomy, update_tagsets=True)
+        self.assertIn(programming, tagset)
+
+    def test_new_inclusion_for_mutually_exclusive_supertags_ERROR(self):
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        knowledge_management = Tag.objects.get(name='Knowledge Management')
+        tagging.include(taggsonomy)
+        self.assertTrue(tagging.includes(taggsonomy))
+        self.assertTrue(knowledge_management.includes(taggsonomy))
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            Tag.objects.get(name='Python').include(taggsonomy)
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            Tag.objects.get(name='Django').include(taggsonomy)
+
+    def test_new_inclusion_succeeds_after_unexcluding_supertags(self):
+        python = Tag.objects.get(name='Python')
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        knowledge_management = Tag.objects.get(name='Knowledge Management')
+        tagging.include(taggsonomy)
+        programming.unexclude(knowledge_management)
+        python.include(taggsonomy)
+        self.assertTrue(python.includes(taggsonomy))
+        self.assertTrue(tagging.includes(taggsonomy))
+        self.assertTrue(programming.includes(taggsonomy))
+        self.assertTrue(knowledge_management.includes(taggsonomy))
+
+    def test_new_inclusion_disallows_excluding_supertags_ERROR(self):
+        python = Tag.objects.get(name='Python')
+        tagging = Tag.objects.get(name='Tagging')
+        taggsonomy = Tag.objects.get(name='Taggsonomy')
+        programming = Tag.objects.get(name='Programming')
+        knowledge_management = Tag.objects.get(name='Knowledge Management')
+        tagging.include(taggsonomy)
+        programming.unexclude(knowledge_management)
+        python.include(taggsonomy)
+        with self.assertRaises(CommonSubtagExclusionError):
+            programming.exclude(knowledge_management)
+        with self.assertRaises(CommonSubtagExclusionError):
+            knowledge_management.exclude(programming)

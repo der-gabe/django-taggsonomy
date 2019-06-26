@@ -1,0 +1,30 @@
+* Basic inclusion
+** Single direct inclusion
+*** DONE Adding "Tagging" to TagSet also adds "Knowledge Management"
+*** DONE Adding "Python" to TagSet also adds "Programming", but NOT "Django"
+** Double direct inclusion
+*** DONE Adding "JavaScript" to TagSet also adds "Programming" and "Web Development"
+** Direct and indirect inclusion*
+*** DONE Adding "Django" to TagSet also adds "Python" and "Programming"
+* Basic exclusion
+*** DONE Adding "Programming" to a TagSet previously containing "Knowledge Management" removes "Knowledge Management"
+*** DONE Exclusion between "Taggsonomy" and "Tagging" fails if there's already a TagSet containing both tags
+* New inclusion relations
+** Including "Programming" under "Django"
+*** DONE fails, as that's a circular inclusion, which is not allowed
+** Including "Django" under "Web Development"
+*** DONE adds "Web Development" to any TagSet already containing "Django"
+*** DONE disallows exclusion between "Programming" and "Web Development"
+** Including "Taggsonomy" under "Tagging"…
+*** *without* 'update_tagsets' (default)
+**** DONE does not add any other tags to a TagSet already containing "Taggsonomy"
+**** DONE succeeds, even if there's already a TagSet containing both "Taggsonomy" and "Programming", but it does not touch those TagSets
+*** *with* 'update_tagsets'
+**** DONE adds "Tagging" and "Knowledge Management" to any TagSet already containing "Taggsonomy"
+**** DONE fails, if there's already a TagSet containing both "Taggsonomy" and "Programming"
+The alternative would be to silently remove the tag "Programming" when "Knowledge Management" gets added, which might not be what users would expect.
+** … and under "Python"…
+*** DONE fails because "Programming" excludes "Knowledge Management"
+*** … *after* unexcluding "Programming" and "Knowledge Management"
+**** DONE succeeds.
+**** DONE disallows exclusion between "Programming" and "Knowledge Management"
