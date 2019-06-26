@@ -785,7 +785,7 @@ class NewInclusionRelationTests(TestCase):
         self.assertIn(programming, tagset)
         self.assertNotIn(tagging, tagset)
 
-    def test_new_inclusion_which_would_lead_to_addition_of_excluded_tag_ERROR(self):
+    def test_new_inclusion_which_would_lead_to_silent_removal_of_tags_ERROR(self):
         taggsonomy = Tag.objects.get(name='Taggsonomy')
         programming = Tag.objects.get(name='Programming')
         # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
@@ -804,6 +804,8 @@ class NewInclusionRelationTests(TestCase):
         self.assertTrue(knowledge_management.includes(taggsonomy))
         with self.assertRaises(MutuallyExclusiveSupertagsError):
             Tag.objects.get(name='Python').include(taggsonomy)
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            Tag.objects.get(name='Django').include(taggsonomy)
 
     def test_new_inclusion_succeeds_after_unexcluding_supertags(self):
         python = Tag.objects.get(name='Python')
