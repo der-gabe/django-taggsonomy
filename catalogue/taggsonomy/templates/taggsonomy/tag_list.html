@@ -5,12 +5,13 @@
 {% block content %}
   <h2>Tags</h2>
   {% for tag in object_list %}
-  <section>
+  <div>
     <span class="taggsonomy-tag">
       <a href="{% url 'taggsonomy:edit-tag' tag.id %}">
         {{ tag }}
       </a>
     </span>
-  </section>
+    <a href="{% url 'taggsonomy:delete-tag' tag.id %}">Delete</a>
+  </div>
   {% endfor %}
 {% endblock %}

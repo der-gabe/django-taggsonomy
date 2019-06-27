@@ -6,6 +6,10 @@ from .forms import TagForm
 from .models import Tag, TagSet
 
 
+class TagDeleteView(generic.DeleteView):
+    model = Tag
+    success_url = reverse_lazy('taggsonomy:tag-list')
+
 class TagEditView(generic.UpdateView):
     form_class = TagForm
     model = Tag
