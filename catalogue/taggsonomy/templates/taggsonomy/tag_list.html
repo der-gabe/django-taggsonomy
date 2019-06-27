@@ -6,7 +6,7 @@
   <h2>Tags</h2>
   {% for tag in object_list %}
   <div class="taggsonomy-container">
-    <span class="taggsonomy-tag">
+    <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
       <a href="{% url 'taggsonomy:edit-tag' tag.id %}">
         {{ tag }}
       </a>

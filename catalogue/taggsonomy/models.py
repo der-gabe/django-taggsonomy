@@ -89,6 +89,7 @@ class Tag(models.Model):
     _inclusions = models.ManyToManyField('self', symmetrical=False)
     _exclusions = models.ManyToManyField('self')
     name = models.CharField(max_length=256, unique=True)
+    color = models.CharField(default="d0d0d0", max_length=6)
     objects = TagManager()
 
     def __str__(self):

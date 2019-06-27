@@ -3,7 +3,12 @@
 {% load taggsonomy %}
 
 {% block content %}
-  <h2>Deleting tag: <span class="taggsonomy-tag">{{ tag }}</span></h2>
+  <h2>
+    Deleting tag:
+    <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
+      {{ tag }}
+    </span>
+  </h2>
   <p>Do you really want to delete this tag?</p>
   <form method="POST">
     {% csrf_token %}

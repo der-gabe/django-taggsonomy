@@ -3,10 +3,15 @@
 {% load taggsonomy %}
 
 {% block content %}
-  <h2>Tag: <span class="taggsonomy-tag">{{ tag }}</span></h2>
+  <h2>Tag:
+    <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
+      {{ tag }}
+    </span>
+  </h2>
   <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
+    <input type="color" name="color" value="#{{ tag.color }}"/>
     <input type="submit"/>
   </form>
   <a href="{% url 'taggsonomy:tag-list' %}">Manage tags</a>

@@ -1,5 +1,7 @@
 <div class="taggsonomy-tags">
   {% for tag in tags %}
-  <span class="taggsonomy-tag">{{ tag }}</span>
+  <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
+    {{ tag }}
+  </span>
   {% endfor %}
 </div>
