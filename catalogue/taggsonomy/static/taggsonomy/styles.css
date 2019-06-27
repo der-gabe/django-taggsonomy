@@ -1,13 +1,11 @@
 .taggsonomy-tag {
-    background-color: #d0d0d0;
     border: 1px solid gray;
     border-radius: 0.5em;
     padding: 0 0.25em;
 }
 
 .taggsonomy-tag:hover {
-    background-color: #808080;
-    color: lightgray;
+    filter: brightness(50%);
 }
 
 .taggsonomy-tags {
