@@ -22,3 +22,7 @@ def add_tags_form(tagged_object):
     contained_ids = [ tag.id for tag in tagset.all() ]
     tags = Tag.objects.exclude(id__in=contained_ids)
     return {'tags': tags, 'tagset' :  tagset}
+
+@register.inclusion_tag('taggsonomy/tag_manager.html')
+def tag_manager(tagged_object):
+    return {'object': tagged_object}
