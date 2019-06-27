@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.urls import reverse
 
 from .errors import (CircularInclusionError, CommonSubtagExclusionError,
                      MutualExclusionError, MutuallyExclusiveSupertagsError,
@@ -158,6 +159,9 @@ class Tag(models.Model):
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         return self._exclusions.filter(id=tag_instance.id).exists()
+
+    def get_absolute_url(self):
+        return reverse('taggsonomy:edit-tag', args=(self.id,))
 
     def get_all_subtags(self):
         """

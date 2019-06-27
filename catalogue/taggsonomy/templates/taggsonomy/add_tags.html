@@ -1,11 +1,11 @@
 <form action="{% url 'taggsonomy:add-tags' tagset.id %}" method="POST">
   {% csrf_token %}
   <input type="text" name="tag_names" placeholder="Tag names to add..."
-         list="{{ tagset.id }}:tags" autocomplete="off">
+         list="{{ tagset.id }}:tags" autocomplete="off"/>
   <datalist id="{{ tagset.id }}:tags">
     {% for tag in tags %}
     <option value="{{ tag }}">
     {% endfor %}
   </datalist>
-  <input type="submit">
+  <input type="submit"/>
 </form>

@@ -1,7 +1,28 @@
-from django.urls import NoReverseMatch
 from django.shortcuts import redirect
+from django.urls import NoReverseMatch, reverse_lazy
+from django.views import generic
 
+from .forms import TagForm
 from .models import Tag, TagSet
+
+
+class TagCreateView(generic.CreateView):
+    template_name_suffix = '_create_form'
+    form_class = TagForm
+    model = Tag
+
+class TagDeleteView(generic.DeleteView):
+    model = Tag
+    success_url = reverse_lazy('taggsonomy:tag-list')
+
+class TagEditView(generic.UpdateView):
+    template_name_suffix = '_edit_form'
+    form_class = TagForm
+    model = Tag
+
+
+class TagListView(generic.ListView):
+    model = Tag
 
 
 def add_tags(request, tagset_id):

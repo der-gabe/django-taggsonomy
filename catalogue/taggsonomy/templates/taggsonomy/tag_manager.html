@@ -1,0 +1,11 @@
+{% load taggsonomy %}
+<div class="taggsonomy-container">
+  <div class="taggsonomy-heading">Tags</div>
+  {% add_tags_form object %}
+  {% active_tags object %}
+  <div class="taggsonomy-actions">
+    <a class="taggsonomy-link" href="{% url 'taggsonomy:tag-list' %}">
+      Manage tags
+    </a>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% load taggsonomy %}
+
+{% block content %}
+  <h2>Tags</h2>
+  {% for tag in object_list %}
+  <div class="taggsonomy-container">
+    <span class="taggsonomy-tag">
+      <a href="{% url 'taggsonomy:edit-tag' tag.id %}">
+        {{ tag }}
+      </a>
+    </span>
+    <a class="taggsonomy-action" href="{% url 'taggsonomy:delete-tag' tag.id %}">
+      Delete
+    </a>
+  </div>
+  {% endfor %}
+  <div class="taggsonomy-actions">
+    <a class="taggsonomy-action" href="{% url 'taggsonomy:create-tag' %}">
+      Create
+    </a> new tag
+  </div>
+{% endblock %}
