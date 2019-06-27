@@ -7,7 +7,7 @@
   {% for tag in object_list %}
   <section>
     <span class="taggsonomy-tag">
-      <a href="{% url 'taggsonomy:tag-detail' tag.id %}">
+      <a href="{% url 'taggsonomy:edit-tag' tag.id %}">
         {{ tag }}
       </a>
     </span>

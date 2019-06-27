@@ -2,11 +2,12 @@ from django.shortcuts import redirect
 from django.urls import NoReverseMatch, reverse_lazy
 from django.views import generic
 
+from .forms import TagForm
 from .models import Tag, TagSet
 
 
-class TagDetailView(generic.DetailView):
-    fields = {'name'}
+class TagEditView(generic.UpdateView):
+    form_class = TagForm
     model = Tag
 
 

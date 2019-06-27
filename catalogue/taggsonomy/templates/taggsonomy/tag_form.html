@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load taggsonomy %}
+
+{% block content %}
+  <h2>Tag: <span class="taggsonomy-tag">{{ tag }}</span></h2>
+  <form action="{% url 'taggsonomy:edit-tag' tag.id %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% comment %}<input type="text" name="tag_name" value="{{tag.name}}"/>{% endcomment %}
+    <input type="submit"/>
+  </form>
+  <a href="{% url 'taggsonomy:tag-list' %}">Manage tags</a>
+{% endblock %}
