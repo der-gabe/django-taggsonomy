@@ -8,11 +8,16 @@
       {{ tag }}
     </span>
   </h2>
-  <form method="POST">
+  <form class="taggsonomy" method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form.non_field_errors }}
+    <div class="taggsonomy-form-field">
+      {{ form.name.errors }}
+      {{ form.name.label_tag }}
+      {{ form.name }}
+    </div>
     <input type="color" name="color" value="#{{ tag.color }}"/>
-    <input type="submit"/>
+    <input class="taggsonomy-action" type="submit"/>
   </form>
   <a href="{% url 'taggsonomy:tag-list' %}">Manage tags</a>
 {% endblock %}
