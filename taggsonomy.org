@@ -10,6 +10,36 @@ Taggsonomy
 ** Tag sets
 A taggable object has a one-to-one relation to a tag set object, which is said to "contain" tags (i.e. it has a many-to-many relation to tag objects).
 A tag set can also implement some logic (e.g. removing tags excluded by newly added tags, cf. Exclusions), so it's a useful abstraction in that sense, too.
+** Inclusions, subtags & supertags
+We need different ways of referring to tags that are directly vs. indirectly included by other tags.
+*** Option 1: "Inclusions" refers to *all* subtags, "subtags" and "supertags" only to directs
+We need another word for *all* supertags.
+`Tag.includes` method is fine.
+`Tag.include` method should probably be renamed.
+New `Tag` properties:
+- `inclusions`: Returns (flat) iterable of *all* the subtags
+- `subtags`: Returns iterable of direct subtags, only
+- `supertags`: Returns iterable of direct supertags, only
+- `???`: Returns (flat) iterable of *all* the supertags
+*** Option 2: "Inclusions" only refers to direct subtags, "subtags" and "supertags" measn *all* of them
+We need another word for *direct* supertags, only (e.g. `Includers`).
+`Tag.includes` method should probably be renamed (e.g. `Tag.has_subtag`).
+`Tag.include` is fine.
+New `Tag` properties:
+- `inclusions`: Returns (flat) iterable of direct subtags, only
+- `subtags`: Returns iterable of *all* the subtags
+- `supertags`: Returns iterable of *all* the supertags
+- `includers`(?): Returns (flat) iterable of direct supertags, only
+*** Option 3: Always explicitely specify direct/idirect/all subtags/supertags. Never use the word inclusion(s) in this context.
+`Tag.include` is fine.
+`Tag.includes` method should probably be renamed (e.g. `Tag.has_subtag`).
+New `Tag` properties:
+- `direct_subtags`: Returns (flat) iterable of direct subtags, only
+- `all_subtags`: Returns iterable of *all* the subtags
+- `indirect_subtags`: Return (flat) iterable of *all* the subtags *minus* the direct ones
+- `direct_supertags`: Returns (flat) iterable of direct supertags, only
+- `all_supertags`: Returns iterable of *all* the supertags
+- `indirect_supertags`: Return (flat) iterable of *all* the supertags *minus* the direct ones
 * Tag relations
 ** Exclusions (mutually exclusive tags)                                 :MVP:
 :PROPERTIES:
