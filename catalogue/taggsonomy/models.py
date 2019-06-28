@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from colorinput.models import ColorField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -9,25 +10,6 @@ from .errors import (CircularInclusionError, CommonSubtagExclusionError,
                      NoSuchTagError, SelfExclusionError,
                      SimultaneousInclusionExclusionError,
                      SupertagAdditionWouldRemoveExcludedError)
-from . import formfields
-
-
-class ColorField(models.CharField):
-    description = ("A simple field to store a color's RGB values "
-                   "in triple HEX format")
-
-    def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 6
-        super(ColorField, self).__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super(ColorField, self).deconstruct()
-        del kwargs['max_length']
-        return name, path, args, kwargs
-
-    def formfield(self, **kwargs):
-        kwargs['form_class'] = formfields.ColorField
-        return super(ColorField, self).formfield(**kwargs)
 
 
 class TagManager(models.Manager):
