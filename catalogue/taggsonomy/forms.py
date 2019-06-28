@@ -6,5 +6,5 @@ from .models import Tag
 
 class TagForm(forms.ModelForm):
     class Meta(object):
-        fields = ('name', )
+        fields = ('name', 'color')
         model = Tag

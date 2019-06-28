@@ -20,10 +20,6 @@ class TagEditView(generic.UpdateView):
     form_class = TagForm
     model = Tag
 
-    def form_valid(self, form):
-        self.object.color = self.request.POST.get('color').lstrip('#')
-        return super(TagEditView, self).form_valid(form)
-
 
 class TagListView(generic.ListView):
     model = Tag
