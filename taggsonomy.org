@@ -254,8 +254,9 @@ This is not possible with `property` alone.
 **** UI elements (tag cloud, TagTree, TagDrawer etc.)
 - should come as templatetags
 - should render into <aside> elements?
-**** Custom elements?
+**** Custom elements / web components?
 <tags>, <tag [user="…"] [group="…"]> etc.
+**** ShadowDOM for tag styles?
 *** Tag transition rules :transition_rules:
 Tag exclusion is ManyToMany, so maybe add a `through=…` table, which would allow a Boolean attribute like `allow_replacment` or similar.
 What about directionality?
@@ -265,8 +266,77 @@ What about directionality?
   … which would be equivalent to:
 "…/tags/foo/baz/bar/",
 
+*** Python3
+Should I use type annotations?
+*** TODOS
+**** TODO Refactor tests
+***** TODO Move getting existing tags from loaded fixtures into `SetUp`
+```(some_test)
+python = Tag.objects.get(name='Python')
+programming = Tag.objects.get(name='Programming')
+programming.include(python)
+```
+
+=>
+
+```(setUp)
+self.python = Tag.objects.get(name='Python')
+self.programming = Tag.objects.get(name='Programming')
+```
+```(some_test)
+self.programming.include(self.python)
+```
+**** TODO Make tag separator configurable when adding tags to objects from WebUI
+**** TODO Visualise fixtures
+JSON => DOT => ASCII art or some image via graphviz  => include in test_scenarios.org
+(or in a different order, e.g. generating JSON from something more readable?)
+**** TODO Refactor code
+There's some ugliness in the current model code
+**** TODO Nail down API
+… or die trying!
+**** TODO Move taggsonomy app into its own repo and make full, reusable Django app
+… like I did with `django-colorinput`
+**** TODO Allow use of other
+**** TODO Improve testing
+***** TODO Switch to *pytest*
+***** TODO Use *hypothesis*
+***** TODO Use *tox*
+**** TODO Improve exceptions
+***** TODO Include messages
+***** TODO possibly include other pertinent information
+… to help answer questions like "which exclusions between which (prospective) supertags make it impossible to add this inclusion relation", or "what would this circular inclusion chain look like"?
+**** TODO Improve code formatting
+***** TODO Use some kind of linter and/or code formatter
+****** *black*?
+****** *flake8*?
+****** TODO Use git pre-commit hook to run it
+**** TODO Improve project structure
+**** TODO Improve CSS
+***** TODO Only show 'x' (the tag removal symbol) on :hover
+But what about mobile?
+**** TODO Improve templates
+***** TODO How robust is `{% extends 'base.html' %}`?
+… and can it be made better?
+`{% extends 'base.html'|yesno … %}`- ?
+***** TODO Overridability?
+Default templates are in `taggsonomy/templates/taggsonomy`.
+Apparently can be overriden via the order of `INSTALLED_APPS` - is this true?
+If so, is it good enough? Do we need a better/more explicit/other way?
+**** TODO Configurability
+***** TODO Let templatetags accept argument(s) to use different (base) URL for links etc.
+**** TODO URLs
+***** TODO Slugify tag names and allow usage in URLs
+*MUCH* prettier, but comes with caveats. For instance, no two tags may then have the same *slug* (probably not a big deal, though).
+How would this interact with multilingual tags? Not super well, I imagine, but maybe there's a way...
+**** TODO Publish
 ** JS library
 Maintain independently of Django app?
+*** TODOS
+**** TODO Make big tag in headline of tag edit view editable (`contenteditable` attribute)
+***** TODO Also make clear, somehow, that it *is* editable (some highlighting?)
+***** TODO Hide regular name input field, then
+***** TODO react to changes (AJAX)?
+***** TODO What of the color picker?
 ** Python library(?) :python_taggsonomy:
 Pure Python, no Django ORM, therefore no assumption about persistence possible and object relations need to be handled Pythonically.
 *** Everything is done in memory
@@ -280,6 +350,9 @@ Should target Firefox, Chromium & WebKit
 ** E-Mail
 *** Thunderbird
 *** IMAP
+** Nextcloud
+** LibreOffice Online
+… or whatever it's called.
 ** Desktop application for overview?
 with connectors to other local/remote implementations
 ** Online-Service for sync?
