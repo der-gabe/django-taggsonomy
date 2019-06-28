@@ -12,6 +12,11 @@
       {{ form.name.label_tag }}
       {{ form.name }}
     </div>
+    <div class="taggsonomy-form-field">
+      {{ form.color.errors }}
+      {{ form.color.label_tag }}
+      {{ form.color }}
+    </div>
     <input class="taggsonomy-action" type="submit"/>
   </form>
   <a href="{% url 'taggsonomy:tag-list' %}">Manage tags</a>
