@@ -671,33 +671,28 @@ class BasicExclusionTests(TestCase):
     fixtures = ['tags.json', 'tagsets.json']
 
     def setUp(self):
-        self.tagset = TagSet.objects.create()
+        self.knowledge_management = Tag.objects.get(name='Knowledge Management')
+        self.programming = Tag.objects.get(name='Programming')
+        self.tagging = Tag.objects.get(name='Tagging')
+        self.taggsonomy = Tag.objects.get(name='Taggsonomy')
 
     def test_adding_tag_excluding_other_tag_to_tagset_removes_other_tag(self):
         # Get the TagSet that already contains the Tag "Knowledge Management"
         # (and nothing else)
         tagset = TagSet.objects.get(pk=1)
-        self.assertIn(
-            Tag.objects.get(name='Knowledge Management'),
-            tagset
-        )
-        tagset.add(Tag.objects.get(name='Programming'))
-        self.assertNotIn(
-            Tag.objects.get(name='Knowledge Management'),
-            tagset
-        )
+        self.assertIn(self.knowledge_management, tagset)
+        tagset.add(self.programming)
+        self.assertNotIn(self.knowledge_management, tagset)
 
     def test_excluding_tags_that_are_already_jointly_present_in_tagset_ERROR(self):
         # Get the TagSet that already contains the Tags "Tagging" AND "Taggsonomy"
         tagset = TagSet.objects.get(pk=2)
-        tagging = Tag.objects.get(name='Tagging')
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
-        self.assertIn(tagging, tagset)
-        self.assertIn(taggsonomy, tagset)
+        self.assertIn(self.tagging, tagset)
+        self.assertIn(self.taggsonomy, tagset)
         with self.assertRaises(MutualExclusionError):
-            tagging.exclude(taggsonomy)
+            self.tagging.exclude(self.taggsonomy)
         with self.assertRaises(MutualExclusionError):
-            taggsonomy.exclude(tagging)
+            self.taggsonomy.exclude(self.tagging)
 
 
 class NewInclusionRelationTests(TestCase):
