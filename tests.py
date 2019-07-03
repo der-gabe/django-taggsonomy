@@ -709,6 +709,7 @@ class NewInclusionRelationTests(TestCase):
     def setUp(self):
         self.django = Tag.objects.get(name='Django')
         self.tagging = Tag.objects.get(name='Tagging')
+        self.taggsonomy = Tag.objects.get(name='Taggsonomy')
         self.web_development = Tag.objects.get(name='Web Development')
 
     def test_circular_inclusion_ERROR(self):
@@ -739,11 +740,10 @@ class NewInclusionRelationTests(TestCase):
     def test_new_inclusion_adds_all_supertags_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Taggsonomy"
         tagset = TagSet.objects.get(pk=4)
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
         knowledge_management = Tag.objects.get(name='Knowledge Management')
         self.assertNotIn(self.tagging, tagset)
         self.assertNotIn(knowledge_management, tagset)
-        self.tagging.include(taggsonomy, update_tagsets=True)
+        self.tagging.include(self.taggsonomy, update_tagsets=True)
         self.assertIn(self.tagging, tagset)
         self.assertIn(knowledge_management, tagset)
 
@@ -769,57 +769,52 @@ class NewInclusionRelationTests(TestCase):
             self.web_development.exclude(programming)
 
     def test_new_inclusion_does_not_touch_tagsets_without_update_enabled(self):
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
         programming = Tag.objects.get(name='Programming')
         # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
         tagset = TagSet.objects.create()
-        tagset.add(taggsonomy, programming)
-        self.tagging.include(taggsonomy)
+        tagset.add(self.taggsonomy, programming)
+        self.tagging.include(self.taggsonomy)
         self.assertIn(programming, tagset)
         self.assertNotIn(self.tagging, tagset)
 
     def test_new_inclusion_which_would_lead_to_silent_removal_of_tags_ERROR(self):
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
         programming = Tag.objects.get(name='Programming')
         # Create a TagSet and add the Tags "Programming" and "Taggsonomy"
         tagset = TagSet.objects.create()
-        tagset.add(taggsonomy, programming)
+        tagset.add(self.taggsonomy, programming)
         with self.assertRaises(SupertagAdditionWouldRemoveExcludedError):
-            self.tagging.include(taggsonomy, update_tagsets=True)
+            self.tagging.include(self.taggsonomy, update_tagsets=True)
         self.assertIn(programming, tagset)
 
     def test_new_inclusion_for_mutually_exclusive_supertags_ERROR(self):
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
         knowledge_management = Tag.objects.get(name='Knowledge Management')
-        self.tagging.include(taggsonomy)
-        self.assertTrue(self.tagging.includes(taggsonomy))
-        self.assertTrue(knowledge_management.includes(taggsonomy))
+        self.tagging.include(self.taggsonomy)
+        self.assertTrue(self.tagging.includes(self.taggsonomy))
+        self.assertTrue(knowledge_management.includes(self.taggsonomy))
         with self.assertRaises(MutuallyExclusiveSupertagsError):
-            Tag.objects.get(name='Python').include(taggsonomy)
+            Tag.objects.get(name='Python').include(self.taggsonomy)
         with self.assertRaises(MutuallyExclusiveSupertagsError):
-            self.django.include(taggsonomy)
+            self.django.include(self.taggsonomy)
 
     def test_new_inclusion_succeeds_after_unexcluding_supertags(self):
         python = Tag.objects.get(name='Python')
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
         programming = Tag.objects.get(name='Programming')
         knowledge_management = Tag.objects.get(name='Knowledge Management')
-        self.tagging.include(taggsonomy)
+        self.tagging.include(self.taggsonomy)
         programming.unexclude(knowledge_management)
-        python.include(taggsonomy)
-        self.assertTrue(python.includes(taggsonomy))
-        self.assertTrue(self.tagging.includes(taggsonomy))
-        self.assertTrue(programming.includes(taggsonomy))
-        self.assertTrue(knowledge_management.includes(taggsonomy))
+        python.include(self.taggsonomy)
+        self.assertTrue(python.includes(self.taggsonomy))
+        self.assertTrue(self.tagging.includes(self.taggsonomy))
+        self.assertTrue(programming.includes(self.taggsonomy))
+        self.assertTrue(knowledge_management.includes(self.taggsonomy))
 
     def test_new_inclusion_disallows_excluding_supertags_ERROR(self):
         python = Tag.objects.get(name='Python')
-        taggsonomy = Tag.objects.get(name='Taggsonomy')
         programming = Tag.objects.get(name='Programming')
         knowledge_management = Tag.objects.get(name='Knowledge Management')
-        self.tagging.include(taggsonomy)
+        self.tagging.include(self.taggsonomy)
         programming.unexclude(knowledge_management)
-        python.include(taggsonomy)
+        python.include(self.taggsonomy)
         with self.assertRaises(CommonSubtagExclusionError):
             programming.exclude(knowledge_management)
         with self.assertRaises(CommonSubtagExclusionError):
