@@ -708,6 +708,7 @@ class NewInclusionRelationTests(TestCase):
 
     def setUp(self):
         self.django = Tag.objects.get(name='Django')
+        self.web_development = Tag.objects.get(name='Web Development')
 
     def test_circular_inclusion_ERROR(self):
         with self.assertRaises(CircularInclusionError):
@@ -716,26 +717,23 @@ class NewInclusionRelationTests(TestCase):
     def test_new_inclusion_does_not_add_supertag_by_default(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        web_development = Tag.objects.get(name='Web Development')
-        self.assertNotIn(web_development, tagset)
-        web_development.include(self.django)
-        self.assertNotIn(web_development, tagset)
+        self.assertNotIn(self.web_development, tagset)
+        self.web_development.include(self.django)
+        self.assertNotIn(self.web_development, tagset)
 
     def test_new_inclusion_does_not_add_supertag_when_update_disabled(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        web_development = Tag.objects.get(name='Web Development')
-        self.assertNotIn(web_development, tagset)
-        web_development.include(self.django, update_tagsets=False)
-        self.assertNotIn(web_development, tagset)
+        self.assertNotIn(self.web_development, tagset)
+        self.web_development.include(self.django, update_tagsets=False)
+        self.assertNotIn(self.web_development, tagset)
 
     def test_new_inclusion_adds_supertag_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        web_development = Tag.objects.get(name='Web Development')
-        self.assertNotIn(web_development, tagset)
-        web_development.include(self.django, update_tagsets=True)
-        self.assertIn(web_development, tagset)
+        self.assertNotIn(self.web_development, tagset)
+        self.web_development.include(self.django, update_tagsets=True)
+        self.assertIn(self.web_development, tagset)
 
     def test_new_inclusion_adds_all_supertags_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Taggsonomy"
@@ -757,19 +755,18 @@ class NewInclusionRelationTests(TestCase):
         self.assertIn(self.django, tagset)
         self.assertNotIn(python, tagset)
         self.assertNotIn(programming, tagset)
-        Tag.objects.get(name='Web Development').include(self.django, update_tagsets=True)
+        self.web_development.include(self.django, update_tagsets=True)
         self.assertIn(self.django, tagset)
         self.assertNotIn(python, tagset)
         self.assertNotIn(programming, tagset)
 
     def test_new_inclusion_disallows_exclusion(self):
         programming = Tag.objects.get(name='Programming')
-        web_development = Tag.objects.get(name='Web Development')
-        web_development.include(self.django)
+        self.web_development.include(self.django)
         with self.assertRaises(CommonSubtagExclusionError):
-            programming.exclude(web_development)
+            programming.exclude(self.web_development)
         with self.assertRaises(CommonSubtagExclusionError):
-            web_development.exclude(programming)
+            self.web_development.exclude(programming)
 
     def test_new_inclusion_does_not_touch_tagsets_without_update_enabled(self):
         tagging = Tag.objects.get(name='Tagging')
