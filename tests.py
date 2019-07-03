@@ -706,36 +706,35 @@ class NewInclusionRelationTests(TestCase):
     """
     fixtures = ['tags.json', 'tagsets.json']
 
+    def setUp(self):
+        self.django = Tag.objects.get(name='Django')
+
     def test_circular_inclusion_ERROR(self):
         with self.assertRaises(CircularInclusionError):
-            Tag.objects.get(name='Django')\
-                       .include(Tag.objects.get(name='Programming'))
+            self.django.include(Tag.objects.get(name='Programming'))
 
     def test_new_inclusion_does_not_add_supertag_by_default(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        django = Tag.objects.get(name='Django')
         web_development = Tag.objects.get(name='Web Development')
         self.assertNotIn(web_development, tagset)
-        web_development.include(django)
+        web_development.include(self.django)
         self.assertNotIn(web_development, tagset)
 
     def test_new_inclusion_does_not_add_supertag_when_update_disabled(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        django = Tag.objects.get(name='Django')
         web_development = Tag.objects.get(name='Web Development')
         self.assertNotIn(web_development, tagset)
-        web_development.include(django, update_tagsets=False)
+        web_development.include(self.django, update_tagsets=False)
         self.assertNotIn(web_development, tagset)
 
     def test_new_inclusion_adds_supertag_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        django = Tag.objects.get(name='Django')
         web_development = Tag.objects.get(name='Web Development')
         self.assertNotIn(web_development, tagset)
-        web_development.include(django, update_tagsets=True)
+        web_development.include(self.django, update_tagsets=True)
         self.assertIn(web_development, tagset)
 
     def test_new_inclusion_adds_all_supertags_when_update_enabled(self):
@@ -753,22 +752,20 @@ class NewInclusionRelationTests(TestCase):
     def test_new_inclusion_does_not_add_unrelated_supertags_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
         tagset = TagSet.objects.get(pk=3)
-        django = Tag.objects.get(name='Django')
         python = Tag.objects.get(name='Python')
         programming = Tag.objects.get(name='Programming')
-        self.assertIn(django, tagset)
+        self.assertIn(self.django, tagset)
         self.assertNotIn(python, tagset)
         self.assertNotIn(programming, tagset)
-        Tag.objects.get(name='Web Development').include(django, update_tagsets=True)
-        self.assertIn(django, tagset)
+        Tag.objects.get(name='Web Development').include(self.django, update_tagsets=True)
+        self.assertIn(self.django, tagset)
         self.assertNotIn(python, tagset)
         self.assertNotIn(programming, tagset)
 
     def test_new_inclusion_disallows_exclusion(self):
-        django = Tag.objects.get(name='Django')
         programming = Tag.objects.get(name='Programming')
         web_development = Tag.objects.get(name='Web Development')
-        web_development.include(django)
+        web_development.include(self.django)
         with self.assertRaises(CommonSubtagExclusionError):
             programming.exclude(web_development)
         with self.assertRaises(CommonSubtagExclusionError):
@@ -805,7 +802,7 @@ class NewInclusionRelationTests(TestCase):
         with self.assertRaises(MutuallyExclusiveSupertagsError):
             Tag.objects.get(name='Python').include(taggsonomy)
         with self.assertRaises(MutuallyExclusiveSupertagsError):
-            Tag.objects.get(name='Django').include(taggsonomy)
+            self.django.include(taggsonomy)
 
     def test_new_inclusion_succeeds_after_unexcluding_supertags(self):
         python = Tag.objects.get(name='Python')
