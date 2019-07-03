@@ -592,10 +592,6 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
         self.assertFalse(self.subtag0.includes(self.supertag.name))
         self.assertFalse(self.subtag1.includes(self.supertag.name))
 
-    # TODO: Test that letting tag A include tag B adds tag B to any tag set that A is already a part of.
-    # TODO: Test that a tag may not simultaneously include mutually exclusive tags.
-    # TODO: Test that circular inclusions are not allowed
-
 
 class TagSetInclusionTests(InclusionSetupMixin, TestCase):
     """
@@ -614,11 +610,10 @@ class TagSetInclusionTests(InclusionSetupMixin, TestCase):
         self.assertTrue(self.supertag in self.tagset)
 
 
-class BasicInclusionTests(TestCase):
+class FixtureSetupMixin(object):
     """
-    Tests for various inclusion scenarios
+    Mixin to provide common setUp method for fixture-based test classes
     """
-    fixtures = ['tags.json']
 
     def setUp(self):
         self.tagset = TagSet.objects.create()
@@ -630,6 +625,13 @@ class BasicInclusionTests(TestCase):
         self.tagging = Tag.objects.get(name='Tagging')
         self.taggsonomy = Tag.objects.get(name='Taggsonomy')
         self.web_development = Tag.objects.get(name='Web Development')
+
+
+class BasicInclusionTests(FixtureSetupMixin, TestCase):
+    """
+    Tests for various inclusion scenarios
+    """
+    fixtures = ['tags.json']
 
     def test_adding_tag_with_subtag_to_tagset_also_adds_subtag(self):
         self.tagset.add(self.tagging)
@@ -651,17 +653,11 @@ class BasicInclusionTests(TestCase):
         self.assertIn(self.programming, self.tagset)
         
 
-class BasicExclusionTests(TestCase):
+class BasicExclusionTests(FixtureSetupMixin, TestCase):
     """
     Tests for various exclusion scenarios
     """
     fixtures = ['tags.json', 'tagsets.json']
-
-    def setUp(self):
-        self.knowledge_management = Tag.objects.get(name='Knowledge Management')
-        self.programming = Tag.objects.get(name='Programming')
-        self.tagging = Tag.objects.get(name='Tagging')
-        self.taggsonomy = Tag.objects.get(name='Taggsonomy')
 
     def test_adding_tag_excluding_other_tag_to_tagset_removes_other_tag(self):
         # Get the TagSet that already contains the Tag "Knowledge Management"
@@ -682,20 +678,11 @@ class BasicExclusionTests(TestCase):
             self.taggsonomy.exclude(self.tagging)
 
 
-class NewInclusionRelationTests(TestCase):
+class NewInclusionRelationTests(FixtureSetupMixin, TestCase):
     """
     Tests for various scenarios involving the adding of new inclusion relations
     """
     fixtures = ['tags.json', 'tagsets.json']
-
-    def setUp(self):
-        self.django = Tag.objects.get(name='Django')
-        self.knowledge_management = Tag.objects.get(name='Knowledge Management')
-        self.programming = Tag.objects.get(name='Programming')
-        self.python = Tag.objects.get(name='Python')
-        self.tagging = Tag.objects.get(name='Tagging')
-        self.taggsonomy = Tag.objects.get(name='Taggsonomy')
-        self.web_development = Tag.objects.get(name='Web Development')
 
     def test_circular_inclusion_ERROR(self):
         with self.assertRaises(CircularInclusionError):
