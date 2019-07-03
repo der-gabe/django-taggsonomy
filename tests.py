@@ -622,46 +622,33 @@ class BasicInclusionTests(TestCase):
 
     def setUp(self):
         self.tagset = TagSet.objects.create()
+        self.django = Tag.objects.get(name='Django')
+        self.javascript = Tag.objects.get(name='JavaScript')
+        self.knowledge_management = Tag.objects.get(name='Knowledge Management')
+        self.programming = Tag.objects.get(name='Programming')
+        self.python = Tag.objects.get(name='Python')
+        self.tagging = Tag.objects.get(name='Tagging')
+        self.taggsonomy = Tag.objects.get(name='Taggsonomy')
+        self.web_development = Tag.objects.get(name='Web Development')
 
     def test_adding_tag_with_subtag_to_tagset_also_adds_subtag(self):
-        self.tagset.add(Tag.objects.get(name='Tagging'))
-        self.assertIn(
-            Tag.objects.get(name='Knowledge Management'),
-            self.tagset
-        )
+        self.tagset.add(self.tagging)
+        self.assertIn(self.knowledge_management, self.tagset)
 
     def test_adding_tag_with_sub_and_supertag_to_tagset_adds_subtag_not_supertag(self):
-        self.tagset.add(Tag.objects.get(name='Python'))
-        self.assertIn(
-            Tag.objects.get(name='Programming'),
-            self.tagset
-        )
-        self.assertNotIn(
-            Tag.objects.get(name='Django'),
-            self.tagset
-        )
+        self.tagset.add(self.python)
+        self.assertIn(self.programming, self.tagset)
+        self.assertNotIn(self.django, self.tagset)
         
     def test_adding_tag_with_two_subtags_to_tagset_adds_both_subtags(self):
-        self.tagset.add(Tag.objects.get(name='JavaScript'))
-        self.assertIn(
-            Tag.objects.get(name='Programming'),
-            self.tagset
-        )
-        self.assertIn(
-            Tag.objects.get(name='Web Development'),
-            self.tagset
-        )
+        self.tagset.add(self.javascript)
+        self.assertIn(self.programming, self.tagset)
+        self.assertIn(self.web_development, self.tagset)
 
     def test_adding_tag_subsubtag_to_tagset_adds_subtag_and_subsubtag(self):
-        self.tagset.add(Tag.objects.get(name='Django'))
-        self.assertIn(
-            Tag.objects.get(name='Python'),
-            self.tagset
-        )
-        self.assertIn(
-            Tag.objects.get(name='Programming'),
-            self.tagset
-        )
+        self.tagset.add(self.django)
+        self.assertIn(self.python, self.tagset)
+        self.assertIn(self.programming, self.tagset)
         
 
 class BasicExclusionTests(TestCase):
