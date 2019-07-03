@@ -708,6 +708,7 @@ class NewInclusionRelationTests(TestCase):
 
     def setUp(self):
         self.django = Tag.objects.get(name='Django')
+        self.knowledge_management = Tag.objects.get(name='Knowledge Management')
         self.tagging = Tag.objects.get(name='Tagging')
         self.taggsonomy = Tag.objects.get(name='Taggsonomy')
         self.web_development = Tag.objects.get(name='Web Development')
@@ -740,12 +741,11 @@ class NewInclusionRelationTests(TestCase):
     def test_new_inclusion_adds_all_supertags_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Taggsonomy"
         tagset = TagSet.objects.get(pk=4)
-        knowledge_management = Tag.objects.get(name='Knowledge Management')
         self.assertNotIn(self.tagging, tagset)
-        self.assertNotIn(knowledge_management, tagset)
+        self.assertNotIn(self.knowledge_management, tagset)
         self.tagging.include(self.taggsonomy, update_tagsets=True)
         self.assertIn(self.tagging, tagset)
-        self.assertIn(knowledge_management, tagset)
+        self.assertIn(self.knowledge_management, tagset)
 
     def test_new_inclusion_does_not_add_unrelated_supertags_when_update_enabled(self):
         # Get the TagSet that already contains the Tag "Django" (and nothing else)
@@ -787,10 +787,9 @@ class NewInclusionRelationTests(TestCase):
         self.assertIn(programming, tagset)
 
     def test_new_inclusion_for_mutually_exclusive_supertags_ERROR(self):
-        knowledge_management = Tag.objects.get(name='Knowledge Management')
         self.tagging.include(self.taggsonomy)
         self.assertTrue(self.tagging.includes(self.taggsonomy))
-        self.assertTrue(knowledge_management.includes(self.taggsonomy))
+        self.assertTrue(self.knowledge_management.includes(self.taggsonomy))
         with self.assertRaises(MutuallyExclusiveSupertagsError):
             Tag.objects.get(name='Python').include(self.taggsonomy)
         with self.assertRaises(MutuallyExclusiveSupertagsError):
@@ -799,23 +798,21 @@ class NewInclusionRelationTests(TestCase):
     def test_new_inclusion_succeeds_after_unexcluding_supertags(self):
         python = Tag.objects.get(name='Python')
         programming = Tag.objects.get(name='Programming')
-        knowledge_management = Tag.objects.get(name='Knowledge Management')
         self.tagging.include(self.taggsonomy)
-        programming.unexclude(knowledge_management)
+        programming.unexclude(self.knowledge_management)
         python.include(self.taggsonomy)
         self.assertTrue(python.includes(self.taggsonomy))
         self.assertTrue(self.tagging.includes(self.taggsonomy))
         self.assertTrue(programming.includes(self.taggsonomy))
-        self.assertTrue(knowledge_management.includes(self.taggsonomy))
+        self.assertTrue(self.knowledge_management.includes(self.taggsonomy))
 
     def test_new_inclusion_disallows_excluding_supertags_ERROR(self):
         python = Tag.objects.get(name='Python')
         programming = Tag.objects.get(name='Programming')
-        knowledge_management = Tag.objects.get(name='Knowledge Management')
         self.tagging.include(self.taggsonomy)
-        programming.unexclude(knowledge_management)
+        programming.unexclude(self.knowledge_management)
         python.include(self.taggsonomy)
         with self.assertRaises(CommonSubtagExclusionError):
-            programming.exclude(knowledge_management)
+            programming.exclude(self.knowledge_management)
         with self.assertRaises(CommonSubtagExclusionError):
-            knowledge_management.exclude(programming)
+            self.knowledge_management.exclude(programming)
