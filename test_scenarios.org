@@ -1,3 +1,4 @@
+[[./fixtures/tags.svg]]
 * Basic inclusion
 ** Single direct inclusion
 *** DONE Adding "Tagging" to TagSet also adds "Knowledge Management"
