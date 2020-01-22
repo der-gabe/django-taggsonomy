@@ -778,3 +778,44 @@ class NewInclusionRelationTests(FixtureSetupMixin, TestCase):
             self.programming.exclude(self.knowledge_management)
         with self.assertRaises(CommonSubtagExclusionError):
             self.knowledge_management.exclude(self.programming)
+
+
+class SupertagTests(FixtureSetupMixin, TestCase):
+    """
+    Tests for handling of supertags by tags
+    """
+    fixtures = ['tags.json']
+
+    def test_get_all_supertags_vertical(self):
+        django_supertags = self.django.get_all_supertags()
+        self.assertIn(self.python, django_supertags)
+        self.assertIn(self.programming, django_supertags)
+        self.assertNotIn(self.web_development, django_supertags)
+
+    def test_get_all_supertags_horizontal(self):
+        js_supertags = self.javascript.get_all_supertags()
+        self.assertIn(self.programming, js_supertags)
+        self.assertIn(self.web_development, js_supertags)
+        self.assertNotIn(self.python, js_supertags)
+
+    def test_get_direct_supertags_vertical(self):
+        django_supertags = self.django.get_direct_supertags()
+        self.assertIn(self.python, django_supertags)
+        self.assertNotIn(self.programming, django_supertags)
+        self.assertNotIn(self.web_development, django_supertags)
+
+    def test_get_direct_supertags_horizontal(self):
+        js_supertags = self.javascript.get_direct_supertags()
+        self.assertIn(self.programming, js_supertags)
+        self.assertIn(self.web_development, js_supertags)
+        self.assertNotIn(self.python, js_supertags)
+
+    def test_get_indirect_supertags_vertical(self):
+        django_supertags = self.django.get_indirect_supertags()
+        self.assertNotIn(self.python, django_supertags)
+        self.assertIn(self.programming, django_supertags)
+        self.assertNotIn(self.web_development, django_supertags)
+
+    def test_get_indirect_supertags_horizontal(self):
+        js_supertags = self.javascript.get_indirect_supertags()
+        self.assertFalse(js_supertags.exists())
