@@ -21,6 +21,25 @@
       {{ form.color.label_tag }}
       {{ form.color }}
     </div>
+    <fieldset class="taggsonomy-form-fieldset">
+      <legend>Supertags</legend>
+      <h4>Indirect Supertags</h4>
+      {% for supertag in tag.get_indirect_supertags %}
+        <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
+        {{ supertag }}
+        </span>
+      {% empty %}
+	<em>This tag has no indirect supertags</em>
+      {% endfor %}
+      <h4>Direct Supertags</h4>
+      {% for supertag in tag.get_direct_supertags %}
+        <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
+        {{ supertag }}
+        </span>
+      {% empty %}
+	<em>This tag has no direct supertags (it is not included by any other tag)</em>
+      {% endfor %}
+    </fieldset>
     <input class="taggsonomy-action" type="submit"/>
   </form>
   <a href="{% url 'taggsonomy:tag-list' %}">Manage tags</a>
