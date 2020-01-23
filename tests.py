@@ -819,3 +819,36 @@ class SupertagTests(FixtureSetupMixin, TestCase):
     def test_get_indirect_supertags_horizontal(self):
         js_supertags = self.javascript.get_indirect_supertags()
         self.assertFalse(js_supertags.exists())
+
+
+class SupertagTests(FixtureSetupMixin, TestCase):
+    """
+    Tests for handling of supertags by tags
+    """
+    fixtures = ['tags.json']
+
+    def test_get_all_subtags_simple(self):
+        all_subtags = self.knowledge_management.get_all_subtags()
+        self.assertEquals(all_subtags.count(), 1)
+        self.assertIn(self.tagging, all_subtags)
+
+    def test_get_all_subtags_complex(self):
+        all_subtags = self.programming.get_all_subtags()
+        self.assertEquals(all_subtags.count(), 3)
+        self.assertIn(self.django, all_subtags)
+        self.assertIn(self.python, all_subtags)
+        self.assertIn(self.javascript, all_subtags)
+
+    def test_get_direct_subtags(self):
+        direct_subtags = self.programming.get_direct_subtags()
+        self.assertEquals(direct_subtags.count(), 2)
+        self.assertIn(self.python, direct_subtags)
+        self.assertIn(self.javascript, direct_subtags)
+        self.assertNotIn(self.django, direct_subtags)
+
+    def test_get_indirect_subtags(self):
+        indirect_subtags = self.programming.get_indirect_subtags()
+        self.assertEquals(indirect_subtags.count(), 1)
+        self.assertIn(self.django, indirect_subtags)
+        self.assertNotIn(self.python, indirect_subtags)
+        self.assertNotIn(self.javascript, indirect_subtags)
