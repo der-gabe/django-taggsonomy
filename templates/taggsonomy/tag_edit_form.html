@@ -38,6 +38,11 @@
           <em>This tag does not exclude any other tags.</em>
         {% endfor %}
       </div>
+      <div class="taggsonomy-form-field">
+        {{ form.exclusions.errors }}
+        {{ form.exclusions.label_tag }}
+        {{ form.exclusions }}
+      </div>
     </fieldset>
     <fieldset class="taggsonomy-form-fieldset">
       <legend>Supertags</legend>

@@ -38,6 +38,7 @@ class TagsField(forms.CharField):
 
 class TagForm(forms.ModelForm):
 
+    exclusions = TagsField(required=False)
     subtags = TagsField(required=False)
     supertags = TagsField(required=False)
 
@@ -61,7 +62,16 @@ class TagForm(forms.ModelForm):
                 # TODO: implement some error handling here
                 pass
 
+    def _exclude_tags(self):
+        for tag in self.cleaned_data.get('exclusions'):
+            try:
+                self.instance.exclude(tag)
+            except TaggsonomyError:
+                # TODO: implement some error handling here
+                pass
+
     def save(self, *args, **kwargs):
         self._add_subtags()
         self._add_supertags()
+        self._exclude_tags()
         return super().save(*args, **kwargs)
