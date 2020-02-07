@@ -291,6 +291,14 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertFalse(self.tag1.excludes(self.tag2.name))
         self.assertFalse(self.tag2.excludes(self.tag1.name))
 
+    def test_get_excluded_tags_method(self):
+        self.assertEquals({*self.tag0.get_excluded_tags()},
+                          {self.tag1, self.tag2})
+        self.assertEquals({*self.tag1.get_excluded_tags()},
+                          {self.tag0})
+        self.assertEquals({*self.tag2.get_excluded_tags()},
+                          {self.tag0})
+
     def test_tag_cannot_exclude_other_tag_when_both_already_jointly_present_in_same_tagset(self):
         # Create a TagSet and add two tags that *don't* exclude each other (yet).
         self.tagset = TagSet.objects.create()
