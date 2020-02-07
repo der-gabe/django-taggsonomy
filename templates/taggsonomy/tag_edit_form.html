@@ -55,22 +55,26 @@
     </fieldset>
     <fieldset class="taggsonomy-form-fieldset">
       <legend>Subtags</legend>
-      <h4>Direct Subtags</h4>
-      {% for subtag in tag.get_direct_subtags %}
-        <span class="taggsonomy-tag" style="background-color: #{{ subtag.color }}">
-        {{ subtag }}
-        </span>
-      {% empty %}
-	<em>This tag has no direct subtags (it does not include any other tags)</em>
-      {% endfor %}
-      <h4>Indirect Subtags</h4>
-      {% for subtag in tag.get_indirect_subtags %}
-        <span class="taggsonomy-tag" style="background-color: #{{ subtag.color }}">
-        {{ subtag }}
-        </span>
-      {% empty %}
-	<em>This tag has no indirect subtags</em>
-      {% endfor %}
+      <div>
+        <h4>Direct Subtags</h4>
+        {% for subtag in tag.get_direct_subtags %}
+          <span class="taggsonomy-tag" style="background-color: #{{ subtag.color }}">
+          {{ subtag }}
+          </span>
+        {% empty %}
+          <em>This tag has no direct subtags (it does not include any other tags)</em>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>Indirect Subtags</h4>
+        {% for subtag in tag.get_indirect_subtags %}
+          <span class="taggsonomy-tag" style="background-color: #{{ subtag.color }}">
+          {{ subtag }}
+          </span>
+        {% empty %}
+          <em>This tag has no indirect subtags</em>
+        {% endfor %}
+      </div>
     </fieldset>
     <input class="taggsonomy-action" type="submit"/>
   </form>
