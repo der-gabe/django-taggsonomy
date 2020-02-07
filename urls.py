@@ -6,7 +6,8 @@ Taggsonomy URL Configuration
 from django.urls import path
 
 from .views import (add_tags, remove_tag, remove_subtag, remove_supertag,
-                    TagCreateView, TagDeleteView, TagEditView, TagListView)
+                    unexclude_tag, TagCreateView, TagDeleteView, TagEditView,
+                    TagListView)
 
 app_name = 'taggsonomy'
 
@@ -19,6 +20,8 @@ urlpatterns = [
          remove_subtag, name='remove-subtag'),
     path('<int:tag_id>/remove_supertag/<int:supertag_id>',
          remove_supertag, name='remove-supertag'),
+    path('<int:tag_id>/unexclude/<int:excluded_tag_id>',
+         unexclude_tag, name='unexclude-tag'),
     path('<int:tagset_id>/add', add_tags, name='add-tags'),
     path('<int:tagset_id>/remove/<int:tag_id>', remove_tag, name='remove-tag'),
 ]

@@ -59,3 +59,11 @@ def remove_supertag(request, tag_id, supertag_id):
         return redirect(request.META.get('HTTP_REFERER'))
     except NoReverseMatch:
         return redirect('/')
+
+
+def unexclude_tag(request, tag_id, excluded_tag_id):
+    Tag.objects.get(id=tag_id).unexclude(excluded_tag_id)
+    try:
+        return redirect(request.META.get('HTTP_REFERER'))
+    except NoReverseMatch:
+        return redirect('/')
