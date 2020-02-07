@@ -11,9 +11,11 @@ class TagCreateView(generic.CreateView):
     form_class = TagForm
     model = Tag
 
+
 class TagDeleteView(generic.DeleteView):
     model = Tag
     success_url = reverse_lazy('taggsonomy:tag-list')
+
 
 class TagEditView(generic.UpdateView):
     template_name_suffix = '_edit_form'
@@ -34,8 +36,17 @@ def add_tags(request, tagset_id):
     except NoReverseMatch:
         return redirect('/')
 
+
 def remove_tag(request, tagset_id, tag_id):
     TagSet.objects.get(id=tagset_id).remove(tag_id)
+    try:
+        return redirect(request.META.get('HTTP_REFERER'))
+    except NoReverseMatch:
+        return redirect('/')
+
+
+def remove_supertag(request, tag_id, supertag_id):
+    Tag.objects.get(id=supertag_id).uninclude(tag_id)
     try:
         return redirect(request.META.get('HTTP_REFERER'))
     except NoReverseMatch:

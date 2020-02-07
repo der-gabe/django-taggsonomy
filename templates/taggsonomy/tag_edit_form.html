@@ -47,6 +47,11 @@
           <em>This tag has no direct supertags (it is not included by any other tag)</em>
         {% endfor %}
       </div>
+      <div class="taggsonomy-form-field">
+        {{ form.supertags.errors }}
+        {{ form.supertags.label_tag }}
+        {{ form.supertags }}
+      </div>
     </fieldset>
     <fieldset class="taggsonomy-form-fieldset">
       <legend>Subtags</legend>
