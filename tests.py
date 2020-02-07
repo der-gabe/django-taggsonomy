@@ -845,9 +845,9 @@ class SupertagTests(FixtureSetupMixin, TestCase):
         self.assertFalse(js_supertags.exists())
 
 
-class SupertagTests(FixtureSetupMixin, TestCase):
+class SubtagTests(FixtureSetupMixin, TestCase):
     """
-    Tests for handling of supertags by tags
+    Tests for handling of subtags by tags
     """
     fixtures = ['tags.json']
 
