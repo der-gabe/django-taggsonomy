@@ -23,22 +23,30 @@
     </div>
     <fieldset class="taggsonomy-form-fieldset">
       <legend>Supertags</legend>
-      <h4>Indirect Supertags</h4>
-      {% for supertag in tag.get_indirect_supertags %}
-        <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
-        {{ supertag }}
-        </span>
-      {% empty %}
-	<em>This tag has no indirect supertags</em>
-      {% endfor %}
-      <h4>Direct Supertags</h4>
-      {% for supertag in tag.get_direct_supertags %}
-        <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
-        {{ supertag }}
-        </span>
-      {% empty %}
-	<em>This tag has no direct supertags (it is not included by any other tag)</em>
-      {% endfor %}
+      <div>
+        <h4>Indirect Supertags</h4>
+        {% for supertag in tag.get_indirect_supertags %}
+          <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
+            {{ supertag }}
+          </span>
+        {% empty %}
+          <em>This tag has no indirect supertags</em>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>Direct Supertags</h4>
+        {% for supertag in tag.get_direct_supertags %}
+          <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
+            {{ supertag }}
+            <a class="taggsonomy-x"
+               href="{% url 'taggsonomy:remove-supertag' tag.id supertag.id %}">
+              &#x2717
+            </a>
+          </span>
+        {% empty %}
+          <em>This tag has no direct supertags (it is not included by any other tag)</em>
+        {% endfor %}
+      </div>
     </fieldset>
     <fieldset class="taggsonomy-form-fieldset">
       <legend>Subtags</legend>
