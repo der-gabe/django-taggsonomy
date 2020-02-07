@@ -38,11 +38,20 @@ class TagsField(forms.CharField):
 
 class TagForm(forms.ModelForm):
 
+    subtags = TagsField(required=False)
     supertags = TagsField(required=False)
 
     class Meta(object):
         fields = ('name', 'color')
         model = Tag
+
+    def _add_subtags(self):
+        for subtag in self.cleaned_data.get('subtags'):
+            try:
+                self.instance.include(subtag)
+            except TaggsonomyError:
+                # TODO: implement some error handling here
+                pass
 
     def _add_supertags(self):
         for supertag in self.cleaned_data.get('supertags'):
@@ -53,5 +62,6 @@ class TagForm(forms.ModelForm):
                 pass
 
     def save(self, *args, **kwargs):
+        self._add_subtags()
         self._add_supertags()
         return super().save(*args, **kwargs)

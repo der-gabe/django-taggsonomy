@@ -69,6 +69,11 @@
           <em>This tag has no direct subtags (it does not include any other tags)</em>
         {% endfor %}
       </div>
+      <div class="taggsonomy-form-field">
+        {{ form.subtags.errors }}
+        {{ form.subtags.label_tag }}
+        {{ form.subtags }}
+      </div>
       <div>
         <h4>Indirect Subtags</h4>
         {% for subtag in tag.get_indirect_subtags %}
