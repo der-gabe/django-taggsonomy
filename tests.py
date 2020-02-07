@@ -553,6 +553,30 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
         self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
         self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
+    def test_uninclude_method_with_tag_id(self):
+        self.assertIn(self.subtag0, self.supertag._inclusions.all())
+        self.supertag.uninclude(self.subtag0.id)
+        self.assertNotIn(self.subtag0, self.supertag._inclusions.all())
+
+    def test_uninclude_method_with_tag_instance(self):
+        self.assertIn(self.subtag0, self.supertag._inclusions.all())
+        self.supertag.uninclude(self.subtag0)
+        self.assertNotIn(self.subtag0, self.supertag._inclusions.all())
+
+    def test_uninclude_method_with_tag_name(self):
+        self.assertIn(self.subtag0, self.supertag._inclusions.all())
+        self.supertag.uninclude(self.subtag0.name)
+        self.assertNotIn(self.subtag0, self.supertag._inclusions.all())
+
+    def test_uninclude_not_included_does_nothing(self):
+        self.assertIn(self.subtag0, self.supertag._inclusions.all())
+        self.assertNotIn(self.subtag1, self.supertag._inclusions.all())
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.supertag.uninclude(self.subtag1)
+        self.assertIn(self.subtag0, self.supertag._inclusions.all())
+        self.assertNotIn(self.subtag1, self.supertag._inclusions.all())
+        self.assertEquals(self.supertag._inclusions.count(), 1)
+
     def test_self_inclusion_does_nothing(self):
         """
         A tag including itself, while not an error, is rather meaningless.
