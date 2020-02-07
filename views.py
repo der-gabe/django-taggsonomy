@@ -45,6 +45,14 @@ def remove_tag(request, tagset_id, tag_id):
         return redirect('/')
 
 
+def remove_subtag(request, tag_id, subtag_id):
+    Tag.objects.get(id=tag_id).uninclude(subtag_id)
+    try:
+        return redirect(request.META.get('HTTP_REFERER'))
+    except NoReverseMatch:
+        return redirect('/')
+
+
 def remove_supertag(request, tag_id, supertag_id):
     Tag.objects.get(id=supertag_id).uninclude(tag_id)
     try:
