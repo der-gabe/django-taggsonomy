@@ -22,6 +22,20 @@
       {{ form.color }}
     </div>
     <fieldset class="taggsonomy-form-fieldset">
+      <legend>Exclusions</legend>
+      <div>
+        <h4>Excluded Tags</h4>
+        {% for excluded_tag in tag.get_excluded_tags %}
+        <span class="taggsonomy-tag"
+              style="background-color: #{{ excluded_tag.color }}">
+          {{ excluded_tag }}
+        </span>
+        {% empty %}
+          <em>This tag does not exclude any other tags.</em>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset class="taggsonomy-form-fieldset">
       <legend>Supertags</legend>
       <div>
         <h4>Indirect Supertags</h4>
