@@ -12,9 +12,9 @@ def tags(tagged_object):
     return {'tags' :  tagset.all()}
 
 @register.inclusion_tag('taggsonomy/active_tags.html')
-def active_tags(tagged_object):
+def active_tags(tagged_object, url=None):
     tagset = get_or_create_tagset_for_object(tagged_object)
-    return {'tagset' :  tagset}
+    return {'tagset' :  tagset, 'url': url}
 
 @register.inclusion_tag('taggsonomy/add_tags.html')
 def add_tags_form(tagged_object):
@@ -24,5 +24,5 @@ def add_tags_form(tagged_object):
     return {'tags': tags, 'tagset' :  tagset}
 
 @register.inclusion_tag('taggsonomy/tag_manager.html')
-def tag_manager(tagged_object):
-    return {'object': tagged_object}
+def tag_manager(tagged_object, url=None):
+    return {'object': tagged_object, 'url': url}

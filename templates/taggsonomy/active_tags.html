@@ -1,7 +1,11 @@
 <div class="taggsonomy-tags">
   {% for tag in tagset.all %}
   <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
-    {{ tag }}
+    {% if url %}
+      <a href="{{ url }}{{ tag }}">{{ tag }}</a>
+    {% else %}
+      {{ tag }}
+    {% endif %}
     <a class="taggsonomy-x"
        href="{% url 'taggsonomy:remove-tag' tagset.id tag.id %}">
       &#x2717
