@@ -28,7 +28,9 @@
         {% for excluded_tag in tag.get_excluded_tags %}
           <span class="taggsonomy-tag"
                 style="background-color: #{{ excluded_tag.color }}">
-            {{ excluded_tag }}
+            <a href="{% url 'taggsonomy:edit-tag' excluded_tag.id %}">
+              {{ excluded_tag }}
+            </a>
             <a class="taggsonomy-x"
                href="{% url 'taggsonomy:unexclude-tag' tag.id excluded_tag.id %}">
               &#x2717
@@ -50,7 +52,9 @@
         <h4>Indirect Supertags</h4>
         {% for supertag in tag.get_indirect_supertags %}
           <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
-            {{ supertag }}
+            <a href="{% url 'taggsonomy:edit-tag' supertag.id %}">
+              {{ supertag }}
+            </a>
           </span>
         {% empty %}
           <em>This tag has no indirect supertags.</em>
@@ -60,7 +64,9 @@
         <h4>Direct Supertags</h4>
         {% for supertag in tag.get_direct_supertags %}
           <span class="taggsonomy-tag" style="background-color: #{{ supertag.color }}">
-            {{ supertag }}
+            <a href="{% url 'taggsonomy:edit-tag' supertag.id %}">
+              {{ supertag }}
+            </a>
             <a class="taggsonomy-x"
                href="{% url 'taggsonomy:remove-supertag' tag.id supertag.id %}">
               &#x2717
@@ -82,7 +88,9 @@
         <h4>Direct Subtags</h4>
         {% for subtag in tag.get_direct_subtags %}
           <span class="taggsonomy-tag" style="background-color: #{{ subtag.color }}">
-            {{ subtag }}
+            <a href="{% url 'taggsonomy:edit-tag' subtag.id %}">
+              {{ subtag }}
+            </a>
             <a class="taggsonomy-x"
                href="{% url 'taggsonomy:remove-subtag' tag.id subtag.id %}">
               &#x2717
@@ -101,7 +109,9 @@
         <h4>Indirect Subtags</h4>
         {% for subtag in tag.get_indirect_subtags %}
           <span class="taggsonomy-tag" style="background-color: #{{ subtag.color }}">
-          {{ subtag }}
+            <a href="{% url 'taggsonomy:edit-tag' subtag.id %}">
+              {{ subtag }}
+            </a>
           </span>
         {% empty %}
           <em>This tag has no indirect subtags.</em>
