@@ -7,9 +7,9 @@ from taggsonomy.utils import get_or_create_tagset_for_object
 register = template.Library()
 
 @register.inclusion_tag('taggsonomy/tags.html')
-def tags(tagged_object):
+def tags(tagged_object, url=None):
     tagset = get_or_create_tagset_for_object(tagged_object)
-    return {'tags' :  tagset.all()}
+    return {'tags' :  tagset.all(), 'url': url}
 
 @register.inclusion_tag('taggsonomy/active_tags.html')
 def active_tags(tagged_object, url=None):
