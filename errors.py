@@ -24,3 +24,6 @@ class SupertagAdditionWouldRemoveExcludedError(TaggsonomyError):
 
 class MutuallyExclusiveSupertagsError(TaggsonomyError):
     pass
+
+class TagTypeError(TaggsonomyError):
+    pass

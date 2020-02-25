@@ -1,3 +1,6 @@
+# Ignore editor's temp. files
+*~
+
 # Ignore database stuff
 db.sqlite3
 __pycache__

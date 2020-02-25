@@ -1,5 +1,6 @@
 from django import template
 
+from taggsonomy.errors import TagTypeError
 from taggsonomy.models import Tag
 from taggsonomy.utils import get_or_create_tagset_for_object
 
@@ -8,6 +9,11 @@ register = template.Library()
 
 @register.inclusion_tag('taggsonomy/tag.html')
 def tag(tag):
+    if not isinstance(tag, Tag):
+        if isinstance(tag, str):
+            tag = Tag.objects.get(name=tag)
+        else:
+            raise TagTypeError
     return {'tag': tag}
 
 @register.inclusion_tag('taggsonomy/tags.html')
