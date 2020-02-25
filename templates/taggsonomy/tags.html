@@ -1,11 +1,7 @@
+{% load taggsonomy %}
+
 <div class="taggsonomy-tags">
   {% for tag in tags %}
-  <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
-    {% if url %}
-      <a href="{{ url }}{{ tag }}">{{ tag }}</a>
-    {% else %}
-      {{ tag }}
-    {% endif %}
-  </span>
+    {% tag tag %}
   {% endfor %}
 </div>

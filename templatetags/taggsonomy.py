@@ -6,6 +6,10 @@ from taggsonomy.utils import get_or_create_tagset_for_object
 
 register = template.Library()
 
+@register.inclusion_tag('taggsonomy/tag.html')
+def tag(tag):
+    return {'tag': tag}
+
 @register.inclusion_tag('taggsonomy/tags.html')
 def tags(tagged_object, url=None):
     tagset = get_or_create_tagset_for_object(tagged_object)
