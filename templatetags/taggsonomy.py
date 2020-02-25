@@ -1,14 +1,31 @@
 from django import template
+from django.urls import reverse
 
-from taggsonomy.models import Tag
+from taggsonomy.models import Tag, TagSet
 from taggsonomy.utils import get_tag_object, get_or_create_tagset_for_object
 
 
 register = template.Library()
 
 @register.inclusion_tag('taggsonomy/tag.html')
-def tag(tag):
-    return {'tag': get_tag_object(tag)}
+def tag(tag, tag_context=None, removable=False):
+    """
+    Templatetag to render a single tag
+
+    :param tag: The tag to render
+    :type tag: Tag, str or int
+    :param removable: `True` if the tag should be rendered with a little 'x', hyperlinked to a removal URL
+    :type removable: bool, optional
+    :param tag_context: The context (object) from which to remove the tag, e.g. a TagSet.
+                        Only relevant iff removable=True - then it's needed to determine the removal URL
+    :type tag_context: TagSet, optional
+    """
+    template_context = {'tag': get_tag_object(tag)}
+    if removable and tag_context:
+        if isinstance(tag_context, TagSet):
+            tagset = tag_context
+            template_context.update({'removal_url': reverse('taggsonomy:remove-tag', args=(tagset.id, tag.id))})
+    return template_context
 
 @register.inclusion_tag('taggsonomy/tags.html')
 def tags(tagged_object, url=None):
