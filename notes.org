@@ -14,3 +14,7 @@ Do not throw NoSuchTagError.
 Silently ignore nonexisting tag IDs and names.
 *** TODO New kwarg ``
 Throw …Error if any of the requested tags is *not* in the tag set.
+* templatetags
+** tag
+** tag_with_id_url
+** tag_with_name_url
