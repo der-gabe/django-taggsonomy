@@ -28,13 +28,7 @@ def tag(tag, tag_context=None, removable=False, url=''):
             tagset = tag_context
             template_context.update({'removal_url': reverse('taggsonomy:remove-tag', args=(tagset.id, tag.id))})
     if url:
-        url_formatter = {
-            'tag': tag,
-            'tag_id': tag.id,
-            'tag_name': tag.name,
-            'tag_color': tag.color,
-        }
-        template_context.update({'url': url.format(**url_formatter)})
+        template_context.update({'url': url.format(tag=tag)})
     return template_context
 
 @register.inclusion_tag('taggsonomy/tags.html')
