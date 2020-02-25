@@ -2,7 +2,7 @@
 <div class="taggsonomy-container">
   <div class="taggsonomy-heading">Tags</div>
   {% add_tags_form object %}
-  {% active_tags object url %}
+  {% active_tags object url=url %}
   <div class="taggsonomy-actions">
     <a class="taggsonomy-link" href="{% url 'taggsonomy:tag-list' %}">
       Manage tags

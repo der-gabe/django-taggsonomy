@@ -1,5 +1,9 @@
 <span class="taggsonomy-tag" style="background-color: #{{ tag.color }}">
-  {{ tag.name }}
+  {% if url%}
+    <a href="{{ url }}">{{ tag.name }}</a>
+  {% else %}
+    {{ tag.name }}
+  {% endif %}
   {% if removal_url %}
     <a class="taggsonomy-x"
        href={{ removal_url }}>
