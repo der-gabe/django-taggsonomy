@@ -8,25 +8,21 @@ from taggsonomy.utils import get_tag_object, get_or_create_tagset_for_object
 register = template.Library()
 
 @register.inclusion_tag('taggsonomy/tag.html')
-def tag(tag, tag_context=None, removable=False, url=''):
+def tag(tag, removable_from=None, url=''):
     """
     Templatetag to render a single tag
 
     :param tag: The tag to render
     :type tag: Tag, str or int
-    :param tag_context: The context (object) from which to remove the tag, e.g. a TagSet.
-                        Only relevant iff removable=True - then it's needed to determine the removal URL
-    :type tag_context: TagSet, optional
-    :param removable: `True` if the tag should be rendered with a little 'x', hyperlinked to a removal URL
-    :type removable: bool, optional
+    :param removable_from: The context from which the tag may be removed,
+                           e.g. a TagSet or tagged/taggable object instance.
+    :type removable_from: object, optional
     :param url: An (optionally formattable) string to serve as the tag's target URL
     :type url: str, optional
     """
     template_context = {'tag': get_tag_object(tag)}
-    if removable and tag_context:
-        if isinstance(tag_context, TagSet):
-            tagset = tag_context
-            template_context.update({'removal_url': reverse('taggsonomy:remove-tag', args=(tagset.id, tag.id))})
+    if isinstance(removable_from, TagSet):
+        template_context.update({'removal_url': reverse('taggsonomy:remove-tag', args=(removable_from.id, tag.id))})
     if url:
         template_context.update({'url': url.format(tag=tag)})
     return template_context

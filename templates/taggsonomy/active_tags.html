@@ -2,6 +2,6 @@
 
 <div class="taggsonomy-tags">
   {% for tag in tagset.all %}
-    {% tag tag removable=True tag_context=tagset url=url %}
+    {% tag tag removable_from=tagset url=url %}
   {% endfor %}
 </div>
