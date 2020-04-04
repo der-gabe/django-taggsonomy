@@ -27,7 +27,7 @@
         <h4>Excluded Tags</h4>
         {% for excluded_tag in tag.get_excluded_tags %}
           {% url 'taggsonomy:edit-tag' excluded_tag.id as excluded_tag_edit_url %}
-          {% tag excluded_tag url=excluded_tag_edit_url %}
+          {% tag excluded_tag removable_from=tag.exclusions url=excluded_tag_edit_url %}
         {% empty %}
           <em>This tag does not exclude any other tags.</em>
         {% endfor %}
@@ -53,7 +53,7 @@
         <h4>Direct Supertags</h4>
         {% for supertag in tag.get_direct_supertags %}
           {% url 'taggsonomy:edit-tag' supertag.id as direct_supertag_edit_url %}
-          {% tag supertag url=direct_supertag_edit_url %}
+          {% tag supertag removable_from=tag.supertags url=direct_supertag_edit_url %}
         {% empty %}
           <em>This tag has no direct supertags (it is not included by any other tag).</em>
         {% endfor %}
@@ -70,7 +70,7 @@
         <h4>Direct Subtags</h4>
         {% for subtag in tag.get_direct_subtags %}
           {% url 'taggsonomy:edit-tag' subtag.id as direct_subtag_edit_url %}
-          {% tag subtag url=direct_subtag_edit_url %}
+          {% tag subtag removable_from=tag.subtags url=direct_subtag_edit_url %}
         {% empty %}
           <em>This tag has no direct subtags (it does not include any other tags).</em>
         {% endfor %}

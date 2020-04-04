@@ -1,7 +1,7 @@
 from django import template
 from django.urls import reverse
 
-from taggsonomy.models import Tag, TagSet
+from taggsonomy.models import Tag, TagSet, ExclusionTagSet, SuperTagSet, SubTagSet
 from taggsonomy.utils import get_tag_object, get_or_create_tagset_for_object
 
 
@@ -23,6 +23,12 @@ def tag(tag, removable_from=None, url=''):
     template_context = {'tag': get_tag_object(tag)}
     if isinstance(removable_from, TagSet):
         template_context.update({'removal_url': reverse('taggsonomy:remove-tag', args=(removable_from.id, tag.id))})
+    elif isinstance(removable_from, ExclusionTagSet):
+        template_context.update({'removal_url': reverse('taggsonomy:unexclude-tag', args=(removable_from.tag.id, tag.id))})
+    elif isinstance(removable_from, SuperTagSet):
+        template_context.update({'removal_url': reverse('taggsonomy:remove-supertag', args=(removable_from.tag.id, tag.id))})
+    elif isinstance(removable_from, SubTagSet):
+        template_context.update({'removal_url': reverse('taggsonomy:remove-subtag', args=(removable_from.tag.id, tag.id))})
     if url:
         template_context.update({'url': url.format(tag=tag)})
     return template_context
