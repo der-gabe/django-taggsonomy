@@ -1,9 +1,5 @@
 # Ignore editor's temp. files
 *~
 
-# Ignore database stuff
-db.sqlite3
+# Ignore pycache stuff
 __pycache__
-
-# Ignore upload directory
-media/
