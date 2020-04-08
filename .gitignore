@@ -1,5 +1,10 @@
-# Ignore editor's temp. files
+# Editor temp. files
 *~
-
-# Ignore pycache stuff
+# packaging (setuptools etc.)
+src/django_taggsonomy.egg-info
+# Python3 cache
 __pycache__
+# pyenv
+.python-version
+# tox
+.tox

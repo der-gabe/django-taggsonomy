@@ -1,11 +1,11 @@
 from django.test import TestCase
 
-from .errors import (CircularInclusionError, CommonSubtagExclusionError,
-                     MutualExclusionError, MutuallyExclusiveSupertagsError,
-                     NoSuchTagError, SelfExclusionError,
-                     SimultaneousInclusionExclusionError,
-                     SupertagAdditionWouldRemoveExcludedError)
-from .models import Tag, TagSet
+from taggsonomy.errors import (
+    CircularInclusionError, CommonSubtagExclusionError, MutualExclusionError,
+    MutuallyExclusiveSupertagsError, NoSuchTagError, SelfExclusionError,
+    SimultaneousInclusionExclusionError,
+    SupertagAdditionWouldRemoveExcludedError)
+from taggsonomy.models import Tag, TagSet
 
 
 class TagSetAddBasicTests(TestCase):
@@ -26,27 +26,27 @@ class TagSetAddBasicTests(TestCase):
     def test_add_single_tag_instance(self):
         self.tagset.add(self.tag0)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_single_tag_by_ID(self):
         self.tagset.add(self.tag0.id)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_single_existing_tag_by_name(self):
         self.tagset.add(self.tag0.name)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_single_nonexisting_tag_by_name(self):
         self.tagset.add('foooo', create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertTrue(self.tagset.filter(name='foooo').exists())
-        self.assertEquals(self.tagset.filter(name='foooo').count(), 1)
+        self.assertEqual(self.tagset.filter(name='foooo').count(), 1)
 
     def test_add_single_nonexisting_tag_by_name_ERROR(self):
         with self.assertRaises(NoSuchTagError):
@@ -56,7 +56,7 @@ class TagSetAddBasicTests(TestCase):
     def test_add_several_tag_instances(self):
         self.tagset.add(self.tag0, self.tag1, self.tag2)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
@@ -64,7 +64,7 @@ class TagSetAddBasicTests(TestCase):
     def test_add_several_tags_by_ID(self):
         self.tagset.add(self.tag0.id, self.tag1.id, self.tag2.id)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
@@ -72,7 +72,7 @@ class TagSetAddBasicTests(TestCase):
     def test_add_several_existing_tags_by_name(self):
         self.tagset.add(self.tag0.name, self.tag1.name, self.tag2.name)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
@@ -83,10 +83,10 @@ class TagSetAddBasicTests(TestCase):
         """
         self.tagset.add('foooo', 'baaar', 'baaaz', create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 3)
-        self.assertEquals(self.tagset.filter(name='foooo').count(), 1)
-        self.assertEquals(self.tagset.filter(name='baaar').count(), 1)
-        self.assertEquals(self.tagset.filter(name='baaaz').count(), 1)
+        self.assertEqual(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.filter(name='foooo').count(), 1)
+        self.assertEqual(self.tagset.filter(name='baaar').count(), 1)
+        self.assertEqual(self.tagset.filter(name='baaaz').count(), 1)
 
     def test_add_several_nonexisting_tags_by_name_ERROR(self):
         """
@@ -109,16 +109,16 @@ class TagSetAddBasicTests(TestCase):
             'foooo', 'baaar', 'baaaz', create_nonexisting=True
         )
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 6)
+        self.assertEqual(self.tagset.count(), 6)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
         self.assertTrue(self.tagset
                             .filter(name__in=['foooo', 'baaar', 'baaaz'])
                             .exists())
-        self.assertEquals(self.tagset.filter(name='foooo').count(), 1)
-        self.assertEquals(self.tagset.filter(name='baaar').count(), 1)
-        self.assertEquals(self.tagset.filter(name='baaaz').count(), 1)
+        self.assertEqual(self.tagset.filter(name='foooo').count(), 1)
+        self.assertEqual(self.tagset.filter(name='baaar').count(), 1)
+        self.assertEqual(self.tagset.filter(name='baaaz').count(), 1)
 
     def test_add_several_tags_by_name_ERROR(self):
         """
@@ -145,12 +145,12 @@ class TagSetAddBasicTests(TestCase):
         self.tagset.add(self.tag0, self.tag1.id, self.tag2.name, 'foooo',
                         create_nonexisting=True)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 4)
+        self.assertEqual(self.tagset.count(), 4)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
         self.assertTrue(self.tagset.filter(name='foooo').exists())
-        self.assertEquals(self.tagset.filter(name='foooo').count(), 1)
+        self.assertEqual(self.tagset.filter(name='foooo').count(), 1)
 
     def test_add_several_tags_ERROR(self):
         """
@@ -170,29 +170,29 @@ class TagSetAddBasicTests(TestCase):
     def test_add_same_tag_twice_simultaneously_by_instance(self):
         self.tagset.add(self.tag0, self.tag0)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_same_tag_thrice_simultaneously(self):
         self.tagset.add(self.tag0, self.tag0.id, self.tag0.name)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
     def test_add_same_tag_thrice_sequentially(self):
         self.tagset.add(self.tag0)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
         self.tagset.add(self.tag0.id)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
         self.tagset.add(self.tag0.name)
         self.assertTrue(self.tagset.exists())
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
 
 
@@ -216,14 +216,14 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
     """
 
     def test_exclusion_relation_forwards(self):
-        self.assertEquals(self.tag0._exclusions.count(), 2)
+        self.assertEqual(self.tag0._exclusions.count(), 2)
         self.assertTrue(self.tag0._exclusions.filter(id=self.tag1.id).exists())
         self.assertTrue(self.tag0._exclusions.filter(id=self.tag2.id).exists())
 
     def test_exclusion_relation_backwards(self):
-        self.assertEquals(self.tag1._exclusions.count(), 1)
+        self.assertEqual(self.tag1._exclusions.count(), 1)
         self.assertTrue(self.tag1._exclusions.filter(id=self.tag0.id).exists())
-        self.assertEquals(self.tag2._exclusions.count(), 1)
+        self.assertEqual(self.tag2._exclusions.count(), 1)
         self.assertTrue(self.tag2._exclusions.filter(id=self.tag0.id).exists())
 
     def test_exclusion_relation_does_not_affect_exclusion_relation_between_third_tags(self):
@@ -251,7 +251,7 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         """
         with self.assertRaises(SelfExclusionError):
             self.tag0.exclude(self.tag0)
-        self.assertEquals(self.tag0._exclusions.count(), 2)
+        self.assertEqual(self.tag0._exclusions.count(), 2)
         self.assertFalse(self.tag0._exclusions.filter(id=self.tag0.id).exists())
         self.assertFalse(self.tag0.excludes(self.tag0))
 
@@ -292,11 +292,11 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertFalse(self.tag2.excludes(self.tag1.name))
 
     def test_get_excluded_tags_method(self):
-        self.assertEquals({*self.tag0.get_excluded_tags()},
+        self.assertEqual({*self.tag0.get_excluded_tags()},
                           {self.tag1, self.tag2})
-        self.assertEquals({*self.tag1.get_excluded_tags()},
+        self.assertEqual({*self.tag1.get_excluded_tags()},
                           {self.tag0})
-        self.assertEquals({*self.tag2.get_excluded_tags()},
+        self.assertEqual({*self.tag2.get_excluded_tags()},
                           {self.tag0})
 
     def test_tag_cannot_exclude_other_tag_when_both_already_jointly_present_in_same_tagset(self):
@@ -360,7 +360,7 @@ class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
     def test_adding_tag_excluded_by_already_present_tag(self):
         self.tagset.add(self.tag0)
         self.tagset.add(self.tag1)
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertTrue(self.tag1 in self.tagset)
 
 
@@ -378,133 +378,133 @@ class TagSetRemoveTests(TestCase):
 
     def test_remove_nothing(self):
         self.tagset.remove()
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_single_tag_instance(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag0)
-        self.assertEquals(self.tagset.count(), 2)
+        self.assertEqual(self.tagset.count(), 2)
         self.assertNotIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_single_tag_by_ID(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag1.id)
-        self.assertEquals(self.tagset.count(), 2)
+        self.assertEqual(self.tagset.count(), 2)
         self.assertIn(self.tag0, self.tagset)
         self.assertNotIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_single_nonexisting_tag_by_ID_ERROR(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         with self.assertRaises(NoSuchTagError):
             self.tagset.remove(self.tag0.id + self.tag1.id + self.tag2.id)
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_single_tag_by_name(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag2.name)
-        self.assertEquals(self.tagset.count(), 2)
+        self.assertEqual(self.tagset.count(), 2)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertNotIn(self.tag2, self.tagset)
 
     def test_remove_single_nonexisting_tag_by_name_ERROR(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         with self.assertRaises(NoSuchTagError):
             self.tagset.remove('foooo')
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_several_tag_instances(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag0, self.tag1)
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertNotIn(self.tag0, self.tagset)
         self.assertNotIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_several_tags_by_ID(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag1.id, self.tag2.id)
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertIn(self.tag0, self.tagset)
         self.assertNotIn(self.tag1, self.tagset)
         self.assertNotIn(self.tag2, self.tagset)
 
     def test_remove_several_tags_incl_nonexisting_by_ID_ERROR(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         with self.assertRaises(NoSuchTagError):
             self.tagset.remove(self.tag1.id, self.tag2.id,
                                self.tag1.id + self.tag2.id)
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_several_tags_by_name(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag0.name, self.tag2.name)
-        self.assertEquals(self.tagset.count(), 1)
+        self.assertEqual(self.tagset.count(), 1)
         self.assertNotIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertNotIn(self.tag2, self.tagset)
 
     def test_remove_several_tags_incl_nonexisting_by_name_ERROR(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         with self.assertRaises(NoSuchTagError):
             self.tagset.remove(self.tag0.name, self.tag2.name, 'foooo')
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_several_tags(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag0, self.tag1.id, self.tag2.name)
         self.assertFalse(self.tagset.exists())
 
     def test_remove_several_tags_incl_nonexisting_ID_ERROR(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         with self.assertRaises(NoSuchTagError):
             self.tagset.remove(self.tag0, self.tag1.id, self.tag2.name, 5)
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_several_tags_incl_nonexisting_name_ERROR(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         with self.assertRaises(NoSuchTagError):
             self.tagset.remove(self.tag0, self.tag1.id, self.tag2.name, 'fooo')
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.assertIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_same_tag_thrice_simultaneously(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag0, self.tag0.id, self.tag0.name)
-        self.assertEquals(self.tagset.count(), 2)
+        self.assertEqual(self.tagset.count(), 2)
         self.assertNotIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
 
     def test_remove_same_tag_thrice_simultaneously(self):
-        self.assertEquals(self.tagset.count(), 3)
+        self.assertEqual(self.tagset.count(), 3)
         self.tagset.remove(self.tag0)
         self.tagset.remove(self.tag0.id)
         self.tagset.remove(self.tag0.name)
-        self.assertEquals(self.tagset.count(), 2)
+        self.assertEqual(self.tagset.count(), 2)
         self.assertNotIn(self.tag0, self.tagset)
         self.assertIn(self.tag1, self.tagset)
         self.assertIn(self.tag2, self.tagset)
@@ -528,36 +528,36 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
     """
 
     def test_inclusion_relation(self):
-        self.assertEquals(self.supertag._inclusions.count(), 1)
-        self.assertEquals(self.subtag0._inclusions.count(), 0)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 1)
+        self.assertEqual(self.subtag0._inclusions.count(), 0)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.assertTrue(self.supertag._inclusions.filter(id=self.subtag0.id).exists())
         self.assertFalse(self.subtag0._inclusions.filter(id=self.supertag.id).exists())
 
     def test_include_method_with_tag_id(self):
-        self.assertEquals(self.supertag._inclusions.count(), 1)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 1)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.supertag.include(self.subtag1.id)
-        self.assertEquals(self.supertag._inclusions.count(), 2)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 2)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
         self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
     def test_include_method_with_tag_instance(self):
-        self.assertEquals(self.supertag._inclusions.count(), 1)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 1)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.supertag.include(self.subtag1)
-        self.assertEquals(self.supertag._inclusions.count(), 2)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 2)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
         self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
     def test_include_method_with_tag_name(self):
-        self.assertEquals(self.supertag._inclusions.count(), 1)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 1)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.supertag.include(self.subtag1.name)
-        self.assertEquals(self.supertag._inclusions.count(), 2)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.supertag._inclusions.count(), 2)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.assertTrue(self.supertag._inclusions.filter(id=self.subtag1.id).exists())
         self.assertFalse(self.subtag1._inclusions.filter(id=self.supertag.id).exists())
 
@@ -579,11 +579,11 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
     def test_uninclude_not_included_does_nothing(self):
         self.assertIn(self.subtag0, self.supertag._inclusions.all())
         self.assertNotIn(self.subtag1, self.supertag._inclusions.all())
-        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEqual(self.supertag._inclusions.count(), 1)
         self.supertag.uninclude(self.subtag1)
         self.assertIn(self.subtag0, self.supertag._inclusions.all())
         self.assertNotIn(self.subtag1, self.supertag._inclusions.all())
-        self.assertEquals(self.supertag._inclusions.count(), 1)
+        self.assertEqual(self.supertag._inclusions.count(), 1)
 
     def test_self_inclusion_does_nothing(self):
         """
@@ -591,9 +591,9 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
 
         Attempting to do that should just have no effect at all.
         """
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.subtag1.include(self.subtag1)
-        self.assertEquals(self.subtag1._inclusions.count(), 0)
+        self.assertEqual(self.subtag1._inclusions.count(), 0)
         self.assertFalse(self.subtag1._inclusions.filter(id=self.subtag1.id).exists())
 
     def test_include_excluded_tag_ERROR(self):
@@ -635,10 +635,10 @@ class TagSetInclusionTests(InclusionSetupMixin, TestCase):
         self.tagset = TagSet.objects.create()
 
     def test_adding_tag_that_is_included_by_other_tag_adds_both(self):
-        self.assertEquals(self.tagset.count(), 0)
+        self.assertEqual(self.tagset.count(), 0)
         self.tagset.add(self.subtag0)
         self.assertTrue(self.subtag0 in self.tagset)
-        self.assertEquals(self.tagset.count(), 2)
+        self.assertEqual(self.tagset.count(), 2)
         self.assertTrue(self.supertag in self.tagset)
 
 
@@ -861,26 +861,26 @@ class SubtagTests(FixtureSetupMixin, TestCase):
 
     def test_get_all_subtags_simple(self):
         all_subtags = self.knowledge_management.get_all_subtags()
-        self.assertEquals(all_subtags.count(), 1)
+        self.assertEqual(all_subtags.count(), 1)
         self.assertIn(self.tagging, all_subtags)
 
     def test_get_all_subtags_complex(self):
         all_subtags = self.programming.get_all_subtags()
-        self.assertEquals(all_subtags.count(), 3)
+        self.assertEqual(all_subtags.count(), 3)
         self.assertIn(self.django, all_subtags)
         self.assertIn(self.python, all_subtags)
         self.assertIn(self.javascript, all_subtags)
 
     def test_get_direct_subtags(self):
         direct_subtags = self.programming.get_direct_subtags()
-        self.assertEquals(direct_subtags.count(), 2)
+        self.assertEqual(direct_subtags.count(), 2)
         self.assertIn(self.python, direct_subtags)
         self.assertIn(self.javascript, direct_subtags)
         self.assertNotIn(self.django, direct_subtags)
 
     def test_get_indirect_subtags(self):
         indirect_subtags = self.programming.get_indirect_subtags()
-        self.assertEquals(indirect_subtags.count(), 1)
+        self.assertEqual(indirect_subtags.count(), 1)
         self.assertIn(self.django, indirect_subtags)
         self.assertNotIn(self.python, indirect_subtags)
         self.assertNotIn(self.javascript, indirect_subtags)
