@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             name='TagSet',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('_tags', models.ManyToManyField(related_name='tagsets', to='taggsonomy.Tag')),
+                ('_tags', models.ManyToManyField(related_name='tagsets', to='django_taggsonomy.Tag')),
             ],
         ),
     ]

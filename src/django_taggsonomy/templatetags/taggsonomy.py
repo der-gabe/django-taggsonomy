@@ -1,9 +1,9 @@
 from django import template
 from django.urls import reverse
 
-from taggsonomy.models import Tag, TagSet
-from taggsonomy.models.base import ExclusionTagSet, SuperTagSet, SubTagSet
-from taggsonomy.utils import get_tag_object, get_or_create_tagset_for_object
+from ..models import Tag, TagSet
+from ..models.base import ExclusionTagSet, SuperTagSet, SubTagSet
+from ..utils import get_tag_object, get_or_create_tagset_for_object
 
 
 register = template.Library()

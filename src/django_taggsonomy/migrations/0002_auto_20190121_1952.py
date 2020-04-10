@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taggsonomy', '0001_initial'),
+        ('django_taggsonomy', '0001_initial'),
     ]
 
     operations = [

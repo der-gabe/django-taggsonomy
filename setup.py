@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where='src'),
     package_dir={'': 'src'},
     package_data={
-        'taggsonomy': [
+        'django_taggsonomy': [
             'src/taggsonomy/static',
             'src/taggsonomy/templates',
         ]

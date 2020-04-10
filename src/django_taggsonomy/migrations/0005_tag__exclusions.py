@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taggsonomy', '0004_auto_20190204_2231'),
+        ('django_taggsonomy', '0004_auto_20190204_2231'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='tag',
             name='_exclusions',
-            field=models.ManyToManyField(related_name='_tag__exclusions_+', to='taggsonomy.Tag'),
+            field=models.ManyToManyField(related_name='_tag__exclusions_+', to='django_taggsonomy.Tag'),
         ),
     ]

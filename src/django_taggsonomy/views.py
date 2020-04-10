@@ -7,23 +7,25 @@ from .models import Tag, TagSet
 
 
 class TagCreateView(generic.CreateView):
-    template_name_suffix = '_create_form'
+    template_name = 'taggsonomy/tag_create_form.html'
     form_class = TagForm
     model = Tag
 
 
 class TagDeleteView(generic.DeleteView):
+    template_name = 'taggsonomy/tag_confirm_delete.html'
     model = Tag
     success_url = reverse_lazy('taggsonomy:tag-list')
 
 
 class TagEditView(generic.UpdateView):
-    template_name_suffix = '_edit_form'
+    template_name = 'taggsonomy/tag_edit_form.html'
     form_class = TagForm
     model = Tag
 
 
 class TagListView(generic.ListView):
+    template_name = 'taggsonomy/tag_list.html'
     model = Tag
 
 

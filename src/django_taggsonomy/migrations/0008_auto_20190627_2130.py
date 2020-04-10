@@ -7,7 +7,7 @@ import colorinput.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taggsonomy', '0007_tag_color'),
+        ('django_taggsonomy', '0007_tag_color'),
     ]
 
     operations = [

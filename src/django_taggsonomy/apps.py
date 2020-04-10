@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class TaggsonomyConfig(AppConfig):
-    name = 'taggsonomy'
+    name = 'django_taggsonomy'
 
     def ready(self):
         # register signals
