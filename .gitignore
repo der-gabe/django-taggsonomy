@@ -1,6 +1,8 @@
 # Editor temp. files
 *~
 # packaging (setuptools etc.)
+dist
+django_taggsonomy.egg-info
 src/django_taggsonomy.egg-info
 # Python3 cache
 __pycache__

@@ -16,22 +16,18 @@ setuptools.setup(
     package_dir={'': 'src'},
     package_data={
         'taggsonomy': [
-            'src/taggsonomy/templates/taggsonomy/active_tags.html',
-            'src/taggsonomy/templates/taggsonomy/add_tags.html',
-            'src/taggsonomy/templates/taggsonomy/tag.html',
-            'src/taggsonomy/templates/taggsonomy/tag_confirm_delete.html',
-            'src/taggsonomy/templates/taggsonomy/tag_create_form.html',
-            'src/taggsonomy/templates/taggsonomy/tag_edit_form.html',
-            'src/taggsonomy/templates/taggsonomy/tag_list.html',
-            'src/taggsonomy/templates/taggsonomy/tag_manager.html',
-            'src/taggsonomy/templates/taggsonomy/tags.html',
-        ],
+            'src/taggsonomy/static',
+            'src/taggsonomy/templates',
+        ]
     },
     classifiers=[
         'Framework :: Django',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
+    ],
+    install_requires=[
+        'django_colorinput',
     ],
     python_requires='>=3.6',
 )
