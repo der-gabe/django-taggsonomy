@@ -1,11 +1,11 @@
 from django.test import TestCase
 
-from taggsonomy.errors import (
+from django_taggsonomy.errors import (
     CircularInclusionError, CommonSubtagExclusionError, MutualExclusionError,
     MutuallyExclusiveSupertagsError, NoSuchTagError, SelfExclusionError,
     SimultaneousInclusionExclusionError,
     SupertagAdditionWouldRemoveExcludedError)
-from taggsonomy.models import Tag, TagSet
+from django_taggsonomy.models import Tag, TagSet
 
 
 class TagSetAddBasicTests(TestCase):

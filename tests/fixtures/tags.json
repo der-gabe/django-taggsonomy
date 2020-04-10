@@ -1,6 +1,6 @@
 [
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 1,
     "fields": {
         "name": "Django",
@@ -9,7 +9,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 2,
     "fields": {
         "name": "Python",
@@ -18,7 +18,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 3,
     "fields": {
         "name": "JavaScript",
@@ -27,7 +27,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 4,
     "fields": {
         "name": "Programming",
@@ -36,7 +36,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 5,
     "fields": {
         "name": "Web Development",
@@ -45,7 +45,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 6,
     "fields": {
         "name": "Tagging",
@@ -54,7 +54,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 7,
     "fields": {
         "name": "Knowledge Management",
@@ -63,7 +63,7 @@
     }
 },
 {
-    "model": "taggsonomy.tag",
+    "model": "django_taggsonomy.tag",
     "pk": 8,
     "fields": {
         "name": "Taggsonomy",

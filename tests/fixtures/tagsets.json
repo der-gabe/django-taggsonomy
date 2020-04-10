@@ -1,6 +1,6 @@
 [
 {
-    "model": "taggsonomy.tagset",
+    "model": "django_taggsonomy.tagset",
     "pk": 1,
     "fields": {
         "content_type": null,
@@ -9,7 +9,7 @@
     }
 },
 {
-    "model": "taggsonomy.tagset",
+    "model": "django_taggsonomy.tagset",
     "pk": 2,
     "fields": {
         "content_type": null,
@@ -18,7 +18,7 @@
     }
 },
 {
-    "model": "taggsonomy.tagset",
+    "model": "django_taggsonomy.tagset",
     "pk": 3,
     "fields": {
         "content_type": null,
@@ -27,7 +27,7 @@
     }
 },
 {
-    "model": "taggsonomy.tagset",
+    "model": "django_taggsonomy.tagset",
     "pk": 4,
     "fields": {
         "content_type": null,
@@ -36,7 +36,7 @@
     }
 },
 {
-    "model": "taggsonomy.tagset",
+    "model": "django_taggsonomy.tagset",
     "pk": 5,
     "fields": {
         "content_type": null,

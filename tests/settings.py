@@ -5,13 +5,13 @@ DATABASES = {
         }
 }
 FIXTURE_DIRS = (
-    'fixtures',
+    'tests/fixtures',
 )
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
-    'taggsonomy',
+    'django_taggsonomy',
 )
 SECRET_KEY = 'not very secret at all, actually'
