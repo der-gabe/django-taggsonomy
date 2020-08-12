@@ -1,8 +1,5 @@
 Django
 django-colorinput
-graphviz
 pytest
 pytest-django
 pytest-pythonpath
-tox
-tox-pyenv
