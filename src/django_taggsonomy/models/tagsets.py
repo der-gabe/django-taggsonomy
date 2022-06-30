@@ -61,7 +61,7 @@ class TagSet(models.Model):
         # Now remove any present tags that are excluded by tags to be added
         # explicitely.
         for present_tag in self._tags.all():
-            for new_tag in tags:
+            for new_tag in combined_tags:
                 if new_tag.excludes(present_tag):
                     self._tags.remove(present_tag)
                     break

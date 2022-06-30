@@ -233,6 +233,16 @@ class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
         self.assertEqual(self.tagset.count(), 1)
         self.assertTrue(self.tag1 in self.tagset)
 
+    def test_adding_tag_with_supertag_excluding_already_present_tag(self):
+        subtag = Tag.objects.create(name='barbar')
+        self.tag1.include(subtag)
+        self.tagset.add(self.tag0)
+        self.tagset.add(subtag)
+        self.assertEqual(self.tagset.count(), 2)
+        self.assertTrue(self.tag1 in self.tagset)
+        self.assertTrue(subtag in self.tagset)
+        self.assertFalse(self.tag0 in self.tagset)
+
 
 class TagSetRemoveTests(TestCase):
     """
