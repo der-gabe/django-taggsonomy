@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from functools import reduce
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from ..errors import MutualExclusionError
+from ..errors import MutualExclusionError, MutuallyExclusiveSupertagsError
 from .tags import check_mutually_exclusive_tags, Tag
 
 
@@ -29,25 +31,42 @@ class TagSet(models.Model):
     def add(self, *args, create_nonexisting=False):
         """
         Add the given tag(s) to this tag set
+
+        Adding a tag will remove other tags that are excluded by it from this
+        tag set.
+
+        One may not add several tags that exclude each other in one call.
+        Attempting to do this will raise MutualExclusionError.
+
+        One may also not add several tags that have mutually exclusive supertags
+        or where at least one of one tag's supertags is excluded by another tag
+        to be added.
+        Attempting to do so will raise MutuallyExclusiveSupertagsError.
         """
         kwargs = dict(create_nonexisting=create_nonexisting)
         # First, get tags from positional args, validating them individually
         tags = Tag.objects.get_tags_from_arguments(*args, **kwargs)
-        # Next, check that the set of tags to be added does not, itself, contain
-        # mutually exclusive tags
+        # Next, check that the full set of tags to be added directly does not
+        # contain mutually exclusive tags…
         if check_mutually_exclusive_tags(tags):
             raise MutualExclusionError
+        # … and that the full set of tags to be added, including all supertags,
+        # does not do so either.
+        supertags = set(reduce(lambda ts1, ts2: ts1.union(ts2),
+                               [tag.get_all_supertags() for tag in tags],
+                               Tag.objects.none()))
+        combined_tags = set(tags) | supertags
+        if check_mutually_exclusive_tags(combined_tags):
+            raise MutuallyExclusiveSupertagsError
         # Now remove any present tags that are excluded by tags to be added
+        # explicitely.
         for present_tag in self._tags.all():
             for new_tag in tags:
                 if new_tag.excludes(present_tag):
                     self._tags.remove(present_tag)
                     break
-        # Finally, add the new tags.
-        self._tags.add(*tags)
-        # Now add all supertags of the tags we just added
-        for tag in tags:
-            tag.add_supertags_to_tagset(self)
+        # Finally, add the new tags and all the supertags.
+        self._tags.add(*combined_tags)
 
     def all(self, *args, **kwargs):
         return self._tags.all(*args, **kwargs)

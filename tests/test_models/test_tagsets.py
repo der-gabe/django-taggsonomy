@@ -211,6 +211,22 @@ class TagSetExclusionTests(ExclusionSetupMixin, TestCase):
             self.tagset.add(self.tag0, self.tag1)
         self.assertFalse(self.tagset.exists())
 
+    def test_adding_tags_with_excluded_supertags_ERROR(self):
+        subtag = Tag.objects.create(name='barbar')
+        self.tag1.include(subtag)
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            self.tagset.add(self.tag0, subtag)
+        self.assertFalse(self.tagset.exists())
+
+    def test_adding_tags_with_mutually_exclusive_supertags_ERROR(self):
+        subtag0 = Tag.objects.create(name='foofoo')
+        self.tag0.include(subtag0)
+        subtag1 = Tag.objects.create(name='barbar')
+        self.tag1.include(subtag1)
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            self.tagset.add(subtag0, subtag1)
+        self.assertFalse(self.tagset.exists())
+
     def test_adding_tag_excluded_by_already_present_tag(self):
         self.tagset.add(self.tag0)
         self.tagset.add(self.tag1)
