@@ -1,9 +1,9 @@
 from django.test import TestCase
 
 from django_taggsonomy.errors import (
-    MutualExclusionError, SelfExclusionError,
+    MutualExclusionError, MutuallyExclusiveSupertagsError, SelfExclusionError,
     SimultaneousInclusionExclusionError)
-from django_taggsonomy.models import TagSet
+from django_taggsonomy.models import Tag, TagSet
 
 from .mixins import ExclusionSetupMixin, InclusionSetupMixin, FixtureSetupMixin
 
@@ -224,6 +224,13 @@ class TagInclusionTests(InclusionSetupMixin, TestCase):
             self.subtag0.include(self.subtag1)
         with self.assertRaises(SimultaneousInclusionExclusionError):
             self.subtag1.include(self.subtag0)
+
+    def test_include_tag_with_excluded_supertag_ERROR(self):
+        # … as this would create a tag with mutually exclusive supertags.
+        new_tag = Tag.objects.create(name='Snake')
+        new_tag.exclude(self.supertag)
+        with self.assertRaises(MutuallyExclusiveSupertagsError):
+            new_tag.include(self.subtag0)
 
     def test_includes_method_with_tag_ids(self):
         self.assertTrue(self.supertag.includes(self.subtag0.id))

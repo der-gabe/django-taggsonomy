@@ -258,16 +258,20 @@ class Tag(models.Model):
         all_supertags = self.get_all_supertags()
         return all_supertags.difference(direct_supertags)
 
-    def has_mutually_exclusive_supertags_with(self, tag):
+    def creates_mutually_exclusive_supertags_with_subtag(self, tag):
         """
-        Return True if this tag and the given tag (instance, id or name)
-        have mutually exclusive supertags, otherwise False.
+        Return True if this tag and the given tag (instance, id or name) have
+        mutually exclusive supertags, or if this tag directly excludes one of
+        the given tag's supertags, or if the given tag directly excludes one of
+        this tag's supertags, otherwise False.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
-        combined_supertags = self.get_all_supertags().union(
+        combined_tags = self.get_all_supertags().union(
             tag_instance.get_all_supertags()
+        ).union(
+            Tag.objects.filter(id__in={self.id, tag.id})
         )
-        return check_mutually_exclusive_tags(set(combined_supertags))
+        return check_mutually_exclusive_tags(set(combined_tags))
 
     def unexclude(self, tag):
         """
@@ -290,6 +294,12 @@ class Tag(models.Model):
         A tag may not simultaneously include and exclude another tag.
         Attempts to do this will raise a SimultaneousInclusionExclusionError.
 
+        A tag may also not include another tag with a supertag it itself or one
+        of its own supertags excludes, or which is excluded directly by one of
+        the tags own supertags, as this would create a situation where a tag
+        could potentially have mutually exclusive supertags. Attempts to do this
+        will raise a MutuallyExclusiveSupertagsError.
+
         A chain of inclusions starting from one tag may not loop around back to
         the same tag. Attempts to achieve this will raise a
         CircularInclusionError.
@@ -305,7 +315,7 @@ class Tag(models.Model):
             raise SimultaneousInclusionExclusionError
         elif tag_instance.includes(self):
             raise CircularInclusionError
-        elif self.has_mutually_exclusive_supertags_with(tag_instance):
+        elif self.creates_mutually_exclusive_supertags_with_subtag(tag_instance):
             raise MutuallyExclusiveSupertagsError
         elif update_tagsets:
             # We're required to update all tag sets containing the newly included
