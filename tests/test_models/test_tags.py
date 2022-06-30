@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from django_taggsonomy.errors import (
+from django_taggsonomy.errors import (CommonSubtagExclusionError,
     MutualExclusionError, MutuallyExclusiveSupertagsError, SelfExclusionError,
     SimultaneousInclusionExclusionError)
 from django_taggsonomy.models import Tag, TagSet
@@ -114,6 +114,34 @@ class TagExclusionTests(ExclusionSetupMixin, TestCase):
             self.tag2.exclude(self.tag1.id)
         with self.assertRaises(MutualExclusionError):
             self.tag2.exclude(self.tag1.name)
+
+    def test_tag_cannot_exclude_other_tag_when_they_share_a_subtag(self):
+        # … as this would create a tag with mutually exclusive supertags.
+        common_subtag = Tag.objects.create(name='barbaz')
+        self.tag1.include(common_subtag)
+        self.tag2.include(common_subtag)
+        with self.assertRaises(CommonSubtagExclusionError):
+            self.tag1.exclude(self.tag2)
+        with self.assertRaises(CommonSubtagExclusionError):
+            self.tag2.exclude(self.tag1)
+
+    def test_tag_cannot_exclude_indirect_subtag(self):
+        # … as this would create a tag with a supertag it excludes.
+        subtag = Tag.objects.create(name='barbar')
+        self.tag1.include(subtag)
+        subsubtag = Tag.objects.create(name='barbarbar')
+        subtag.include(subsubtag)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            self.tag1.exclude(subsubtag)
+
+    def test_tag_cannot_exclude_indirect_supertag(self):
+        # … as this would create a tag with a supertag it excludes.
+        subtag = Tag.objects.create(name='barbar')
+        self.tag1.include(subtag)
+        subsubtag = Tag.objects.create(name='barbarbar')
+        subtag.include(subsubtag)
+        with self.assertRaises(SimultaneousInclusionExclusionError):
+            subsubtag.exclude(self.tag1)
 
     def test_unexclude_method_with_tag_id(self):
         self.tag0.unexclude(self.tag1.id)

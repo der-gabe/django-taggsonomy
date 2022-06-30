@@ -164,9 +164,13 @@ class Tag(models.Model):
         the same TagSet.
         Attempts to do this will raise a MutualExclusionError.
 
-        A tag that includes another tag, or is included by it,
+        A tag that includes another tag, or is included by it, even indirectly,
         may not simultaneously exclude said other tag.
         Attempts to do this will raise a SimultaneousInclusionExclusionError.
+
+        A tag may also not exclude another tag if they share common subtag, as
+        this would create a situation where a tag could have mutually exclusive
+        supertags. Attempts to do this will raise a CommonSubtagExclusionError.
         """
         tag_instance = Tag.objects.get_tag_from_argument(tag)
         if tag_instance == self:
